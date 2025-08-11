@@ -19,10 +19,14 @@ async function modifyDMVREG262Pdf(
     effectiveTransactionType,
     finalTransferData
 ) {
+    console.log("modifyDMVREG262Pdf");
+
     const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
     const form = pdfDoc.getForm();
     const fieldNames = form.getFields().map(f => f.getName());
-    console.log('Available Reg262 PDF Fields:', JSON.stringify(fieldNames, null, 2));
+    // console.log("fieldNames", fieldNames, "end fieldNames");
+
+    // console.log('Available Reg262 PDF Fields:', JSON.stringify(fieldNames, null, 2));
     const pages = pdfDoc.getPages();
     const firstPage = pages[0];
 
@@ -39,7 +43,7 @@ async function modifyDMVREG262Pdf(
             (formData.transactionType && typeof formData.transactionType === 'string' ? formData.transactionType : '');
 
         if (transactionType && transactionType.includes('Multiple Transfer')) {
-            console.log('Multiple transfer detected:', transactionType);
+            // console.log('Multiple transfer detected:', transactionType);
 
 
             const matches = transactionType.match(/Multiple Transfer (\d+) of (\d+)/i);
@@ -48,22 +52,22 @@ async function modifyDMVREG262Pdf(
                 const currentTransfer = parseInt(matches[1], 10);
                 const totalTransfers = parseInt(matches[2], 10);
 
-                console.log(`Transfer ${currentTransfer} of ${totalTransfers} detected`);
+                // console.log(`Transfer ${currentTransfer} of ${totalTransfers} detected`);
 
 
                 if (currentTransfer === totalTransfers) {
-                    console.log('This is the final transfer in the sequence - using current owner data');
+                    // console.log('This is the final transfer in the sequence - using current owner data');
 
                 } else {
-                    console.log('This is not the final transfer - checking for final transfer data');
+                    // console.log('This is not the final transfer - checking for final transfer data');
 
 
                     if (finalTransferData && finalTransferData.owners) {
-                        console.log('Using explicitly provided final transfer data for owners:',
-                            JSON.stringify({
-                                owner: finalTransferData.owners[0]?.firstName + ' ' +
-                                    finalTransferData.owners[0]?.lastName
-                            }));
+                        // console.log('Using explicitly provided final transfer data for owners:',
+                        // JSON.stringify({
+                        //     owner: finalTransferData.owners[0]?.firstName + ' ' +
+                        //         finalTransferData.owners[0]?.lastName
+                        // }));
                         ownersData = finalTransferData.owners;
                     }
 
@@ -71,7 +75,7 @@ async function modifyDMVREG262Pdf(
                         formData.transfers.length >= totalTransfers) {
                         const lastTransferData = formData.transfers[totalTransfers - 1];
                         if (lastTransferData && lastTransferData.owners) {
-                            console.log(`Using buyers data from transfer ${totalTransfers} in formData.transfers`);
+                            // console.log(`Using buyers data from transfer ${totalTransfers} in formData.transfers`);
                             ownersData = lastTransferData.owners;
                         }
                     } else {
@@ -81,11 +85,11 @@ async function modifyDMVREG262Pdf(
             }
         } else if (formData.transactionType && typeof formData.transactionType === 'string') {
             transactionType = formData.transactionType;
-            console.log('Using formData.transactionType:', formData.transactionType);
+            // console.log('Using formData.transactionType:', formData.transactionType);
         }
 
         if (transactionType.includes('Multiple Transfer')) {
-            console.log('Multiple transfer detected:', transactionType);
+            // console.log('Multiple transfer detected:', transactionType);
 
 
             const matches = transactionType.match(/Multiple Transfer (\d+) of (\d+)/i);
@@ -94,25 +98,25 @@ async function modifyDMVREG262Pdf(
                 const currentTransfer = parseInt(matches[1], 10);
                 const totalTransfers = parseInt(matches[2], 10);
 
-                console.log(`Transfer ${currentTransfer} of ${totalTransfers} detected`);
+                // console.log(`Transfer ${currentTransfer} of ${totalTransfers} detected`);
 
 
                 if (currentTransfer === totalTransfers) {
-                    console.log('This is the final transfer in the sequence - using current owner data');
+                    // console.log('This is the final transfer in the sequence - using current owner data');
 
                 } else {
-                    console.log('This is not the final transfer - checking for final transfer data');
+                    // console.log('This is not the final transfer - checking for final transfer data');
 
 
                     if (finalTransferData && finalTransferData.owners) {
-                        console.log('Using explicitly provided final transfer data');
+                        // console.log('Using explicitly provided final transfer data');
                         ownersData = finalTransferData.owners;
                     }
 
                     else if (formData.transfers && Array.isArray(formData.transfers) && formData.transfers.length >= totalTransfers) {
                         const lastTransferData = formData.transfers[totalTransfers - 1];
                         if (lastTransferData && lastTransferData.owners) {
-                            console.log(`Using buyers data from transfer ${totalTransfers} in formData.transfers`);
+                            // console.log(`Using buyers data from transfer ${totalTransfers} in formData.transfers`);
                             ownersData = lastTransferData.owners;
                         }
                     } else {
@@ -123,11 +127,11 @@ async function modifyDMVREG262Pdf(
         }
         else if (formData.transactionType && typeof formData.transactionType === 'string') {
             transactionType = formData.transactionType;
-            console.log('Using formData.transactionType:', formData.transactionType);
+            // console.log('Using formData.transactionType:', formData.transactionType);
         }
 
         if (transactionType.includes('Multiple Transfer')) {
-            console.log('Multiple transfer detected:', transactionType);
+            // console.log('Multiple transfer detected:', transactionType);
 
 
             const matches = transactionType.match(/Multiple Transfer (\d+) of (\d+)/i);
@@ -136,20 +140,20 @@ async function modifyDMVREG262Pdf(
                 const currentTransfer = parseInt(matches[1], 10);
                 const totalTransfers = parseInt(matches[2], 10);
 
-                console.log(`Transfer ${currentTransfer} of ${totalTransfers} detected`);
+                // console.log(`Transfer ${currentTransfer} of ${totalTransfers} detected`);
 
 
                 if (currentTransfer === totalTransfers) {
-                    console.log('This is the final transfer in the sequence - using current owner data');
+                    // console.log('This is the final transfer in the sequence - using current owner data');
 
                 } else {
-                    console.log('This is not the final transfer - need to find the final transfer data');
+                    // console.log('This is not the final transfer - need to find the final transfer data');
 
 
                     if (formData.transfers && Array.isArray(formData.transfers) && formData.transfers.length >= totalTransfers) {
                         const lastTransferData = formData.transfers[totalTransfers - 1];
                         if (lastTransferData && lastTransferData.owners) {
-                            console.log(`Using buyers data from transfer ${totalTransfers}`);
+                            // console.log(`Using buyers data from transfer ${totalTransfers}`);
                             ownersData = lastTransferData.owners;
                         }
                     } else {
@@ -160,14 +164,14 @@ async function modifyDMVREG262Pdf(
         }
     }
 
-    console.log(`Using owners data:`, JSON.stringify(ownersData, null, 2));
+    // console.log(`Using owners data:`, JSON.stringify(ownersData, null, 2));
 
     try {
         const purchaseField = form.getTextField('Text7');
         if (purchaseField) {
             const purchaseValue = ownersData?.purchaseValue || '';
             purchaseField.setText(purchaseValue.toString());
-            console.log('Successfully set purchase value in Text7 field');
+            // console.log('Successfully set purchase value in Text7 field');
         } else {
             console.warn('Text7 field not found, falling back to drawing method');
 
@@ -191,7 +195,7 @@ async function modifyDMVREG262Pdf(
         const checkbox = form.getCheckBox('Group1');
         if (checkbox) {
             const shouldCheck = !!formData.vehicleInformation.exceedsMechanicalLimit;
-            console.log('Setting checkbox state for Group1:', shouldCheck);
+            // console.log('Setting checkbox state for Group1:', shouldCheck);
 
             if (shouldCheck) {
                 checkbox.isChecked();
@@ -199,7 +203,7 @@ async function modifyDMVREG262Pdf(
                 checkbox.uncheck();
             }
 
-            console.log('Successfully set checkbox state for Group1');
+            // console.log('Successfully set checkbox state for Group1');
         } else {
             console.warn('Group1 field not found, falling back to drawing method');
         }
@@ -207,7 +211,7 @@ async function modifyDMVREG262Pdf(
         console.error('Error setting checkbox:', error);
     }
 
-    console.log("Drawing text directly on the PDF...");
+    // console.log("Drawing text directly on the PDF...");
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
 
@@ -221,7 +225,7 @@ async function modifyDMVREG262Pdf(
             const day = String(purchaseDate.getDate()).padStart(2, '0');
             const year = String(purchaseDate.getFullYear());
 
-            console.log(`Formatting date: ${month}/${day}/${year}`);
+            // console.log(`Formatting date: ${month}/${day}/${year}`);
 
 
             firstPage.drawText(month[0], {
@@ -371,16 +375,16 @@ async function modifyDMVREG262Pdf(
         (formData.mailingAddress || {}) :
         (formData.residenceAddress || {});
 
-    console.log("Buyer mailing address different?", buyerMailingAddressDifferent);
-    console.log("Buyer mailing address:", JSON.stringify(buyerMailingAddress));
+    // console.log("Buyer mailing address different?", buyerMailingAddressDifferent);
+    // console.log("Buyer mailing address:", JSON.stringify(buyerMailingAddress));
 
     const sellerMailingAddressDifferent = formData.sellerMailingAddressDifferent || false;
     const sellerMailingAddress = sellerMailingAddressDifferent ?
         (formData.sellerMailingAddress || {}) :
         (formData.sellerResidenceAddress || {});
 
-    console.log("Seller mailing address different?", sellerMailingAddressDifferent);
-    console.log("Seller mailing address:", JSON.stringify(sellerMailingAddress));
+    // console.log("Seller mailing address different?", sellerMailingAddressDifferent);
+    // console.log("Seller mailing address:", JSON.stringify(sellerMailingAddress));
 
 
     const sellerAddressToUse = sellerMailingAddress || {};
@@ -394,22 +398,22 @@ async function modifyDMVREG262Pdf(
 
         if (sellerStreetField) {
             sellerStreetField.setText(sellerAddressToUse.street || '');
-            console.log(`Set seller street: ${sellerAddressToUse.street || ''}`);
+            // console.log(`Set seller street: ${sellerAddressToUse.street || ''}`);
         }
 
         if (sellerCityField) {
             sellerCityField.setText(sellerAddressToUse.city || '');
-            console.log(`Set seller city: ${sellerAddressToUse.city || ''}`);
+            // console.log(`Set seller city: ${sellerAddressToUse.city || ''}`);
         }
 
         if (sellerStateField) {
             sellerStateField.setText(sellerAddressToUse.state || '');
-            console.log(`Set seller state: ${sellerAddressToUse.state || ''}`);
+            // console.log(`Set seller state: ${sellerAddressToUse.state || ''}`);
         }
 
         if (sellerZipField) {
             sellerZipField.setText(sellerAddressToUse.zip || '');
-            console.log(`Set seller zip: ${sellerAddressToUse.zip || ''}`);
+            // console.log(`Set seller zip: ${sellerAddressToUse.zip || ''}`);
         }
     } catch (error) {
         console.error('Error setting seller address fields:', error);
@@ -464,22 +468,22 @@ async function modifyDMVREG262Pdf(
 
         if (ownerStreetField) {
             ownerStreetField.setText(buyerAddressToUse.street || '');
-            console.log(`Set buyer street: ${buyerAddressToUse.street || ''}`);
+            // console.log(`Set buyer street: ${buyerAddressToUse.street || ''}`);
         }
 
         if (ownerCityField) {
             ownerCityField.setText(buyerAddressToUse.city || '');
-            console.log(`Set buyer city: ${buyerAddressToUse.city || ''}`);
+            // console.log(`Set buyer city: ${buyerAddressToUse.city || ''}`);
         }
 
         if (ownerStateField) {
             ownerStateField.setText(buyerAddressToUse.state || '');
-            console.log(`Set buyer state: ${buyerAddressToUse.state || ''}`);
+            // console.log(`Set buyer state: ${buyerAddressToUse.state || ''}`);
         }
 
         if (ownerZipField) {
             ownerZipField.setText(buyerAddressToUse.zip || '');
-            console.log(`Set buyer zip: ${buyerAddressToUse.zip || ''}`);
+            // console.log(`Set buyer zip: ${buyerAddressToUse.zip || ''}`);
         }
     } catch (error) {
         console.error('Error setting buyer address fields:', error);
@@ -550,15 +554,15 @@ async function modifyDMVREG262Pdf(
         else if (label === 'POA DATE 1') {
             const currentDate = new Date();
             value = formatDate(currentDate.toISOString());
-            console.log(`Using current date for POA DATE 1: ${value}`);
+            // console.log(`Using current date for POA DATE 1: ${value}`);
         }
         else if (label === 'POA DATE 2') {
             if (Array.isArray(ownersData) && ownersData.length > 1) {
                 const currentDate = new Date();
                 value = formatDate(currentDate.toISOString());
-                console.log(`Using current date for POA DATE 2 (because there are ${ownersData.length} owners): ${value}`);
+                // console.log(`Using current date for POA DATE 2 (because there are ${ownersData.length} owners): ${value}`);
             } else {
-                console.log('Less than 2 new registration owners, skipping POA DATE 2 field');
+                // console.log('Less than 2 new registration owners, skipping POA DATE 2 field');
                 continue;
             }
         }
@@ -567,24 +571,24 @@ async function modifyDMVREG262Pdf(
         }
         else if (label === 'APPOINTER') {
             value = powerOfAttorneyData.printNames || '';
-            console.log(`Found appointer value: ${value}`);
+            // console.log(`Found appointer value: ${value}`);
         }
         else if (label === 'APPOINTEE') {
             value = powerOfAttorneyData.appointee || '';
-            console.log(`Found appointee value: ${value}`);
+            // console.log(`Found appointee value: ${value}`);
         }
         else if (label === 'I/We') {
             if (Array.isArray(sellerData) && sellerData.length > 0) {
                 const sellerNames = sellerData.map(seller => formatFullName(seller)).filter(Boolean);
                 value = sellerNames.join(', ');
-                console.log(`Using all sellers for I/We field: ${value}`);
+                // console.log(`Using all sellers for I/We field: ${value}`);
             }
         }
         else if (label === 'to') {
             if (Array.isArray(ownersData) && ownersData.length > 0) {
                 const ownerNames = ownersData.map(owner => formatFullName(owner)).filter(Boolean);
                 value = ownerNames.join(', ');
-                console.log(`Using all owners for 'to' field: ${value}`);
+                // console.log(`Using all owners for 'to' field: ${value}`);
             }
         }
         else if (label === 'SELLING PRICE') {
@@ -595,163 +599,163 @@ async function modifyDMVREG262Pdf(
             } else if (typeof ownersData.purchaseValue !== 'undefined') {
                 value = ownersData.purchaseValue.toString();
             } else {
-                console.log("Owner data structure:", JSON.stringify(ownersData));
+                // console.log("Owner data structure:", JSON.stringify(ownersData));
                 value = "";
             }
         }
         else if (label === 'GIFT RELATIONSHIP') {
             if (Array.isArray(ownersData) && ownersData.length > 0) {
                 value = ownersData[0].relationshipWithGifter || '';
-                console.log(`Found gift relationship: ${value}`);
+                // console.log(`Found gift relationship: ${value}`);
             }
         }
         else if (label === 'GIFT VALUE') {
             if (Array.isArray(ownersData) && ownersData.length > 0) {
                 value = ownersData[0].giftValue || '';
-                console.log(`Found gift value: ${value}`);
+                // console.log(`Found gift value: ${value}`);
             }
         }
         else if (label === 'BUYER 1') {
             if (Array.isArray(ownersData) && ownersData.length > 0) {
                 value = formatFullName(ownersData[0]) || '';
-                console.log(`Found buyer 1 value: ${value}`);
+                // console.log(`Found buyer 1 value: ${value}`);
             }
         }
         else if (label === 'BUYER 2') {
             if (Array.isArray(ownersData) && ownersData.length > 1) {
                 value = formatFullName(ownersData[1]) || '';
-                console.log(`Found buyer 2 value: ${value}`);
+                // console.log(`Found buyer 2 value: ${value}`);
             } else {
-                console.log('No buyer 2 found, skipping BUYER 2 field');
+                // console.log('No buyer 2 found, skipping BUYER 2 field');
                 continue;
             }
         }
         else if (label === 'BUYER 3') {
             if (Array.isArray(ownersData) && ownersData.length > 2) {
                 value = formatFullName(ownersData[2]) || '';
-                console.log(`Found buyer 3 value: ${value}`);
+                // console.log(`Found buyer 3 value: ${value}`);
             } else {
-                console.log('No buyer 3 found, skipping BUYER 3 field');
+                // console.log('No buyer 3 found, skipping BUYER 3 field');
                 continue;
             }
         }
         else if (label === 'SELLER 1') {
             if (Array.isArray(sellerData) && sellerData.length > 0) {
                 value = formatFullName(sellerData[0]) || '';
-                console.log(`Found seller 1 value: ${value}`);
+                // console.log(`Found seller 1 value: ${value}`);
             }
         }
         else if (label === 'SELLER 2') {
             if (Array.isArray(sellerData) && sellerData.length > 1) {
                 value = formatFullName(sellerData[1]) || '';
-                console.log(`Found seller 2 value: ${value}`);
+                // console.log(`Found seller 2 value: ${value}`);
             } else {
-                console.log('No seller 2 found, skipping SELLER 2 field');
+                // console.log('No seller 2 found, skipping SELLER 2 field');
                 continue;
             }
         }
         else if (label === 'SELLER 3') {
             if (Array.isArray(sellerData) && sellerData.length > 2) {
                 value = formatFullName(sellerData[2]) || '';
-                console.log(`Found seller 3 value: ${value}`);
+                // console.log(`Found seller 3 value: ${value}`);
             } else {
-                console.log('No seller 3 found, skipping SELLER 3 field');
+                // console.log('No seller 3 found, skipping SELLER 3 field');
                 continue;
             }
         }
         else if (label === 'BUYER 1 DOP') {
             if (Array.isArray(ownersData) && ownersData.length > 0) {
                 value = formatDate(seller1SaleDate);
-                console.log(`Using seller1's sale date for BUYER 1 DOP: ${value}`);
+                // console.log(`Using seller1's sale date for BUYER 1 DOP: ${value}`);
             }
         }
         else if (label === 'BUYER 2 DOP') {
             if (Array.isArray(ownersData) && ownersData.length > 1) {
                 value = formatDate(seller1SaleDate);
-                console.log(`Using seller1's sale date for BUYER 2 DOP: ${value}`);
+                // console.log(`Using seller1's sale date for BUYER 2 DOP: ${value}`);
             } else {
-                console.log('No buyer 2 found, skipping BUYER 2 DOP field');
+                // console.log('No buyer 2 found, skipping BUYER 2 DOP field');
                 continue;
             }
         }
         else if (label === 'BUYER 3 DOP') {
             if (Array.isArray(ownersData) && ownersData.length > 2) {
                 value = formatDate(seller1SaleDate);
-                console.log(`Using seller1's sale date for BUYER 3 DOP: ${value}`);
+                // console.log(`Using seller1's sale date for BUYER 3 DOP: ${value}`);
             } else {
-                console.log('No buyer 3 found, skipping BUYER 3 DOP field');
+                // console.log('No buyer 3 found, skipping BUYER 3 DOP field');
                 continue;
             }
         }
         else if (label === 'SELLER 1 DOP') {
             if (Array.isArray(sellerData) && sellerData.length > 0) {
                 value = formatDate(seller1SaleDate);
-                console.log(`Using seller1's sale date for SELLER 1 DOP: ${value}`);
+                // console.log(`Using seller1's sale date for SELLER 1 DOP: ${value}`);
             }
         }
         else if (label === 'SELLER 2 DOP') {
             if (Array.isArray(sellerData) && sellerData.length > 1) {
                 value = formatDate(seller1SaleDate);
-                console.log(`Using seller1's sale date for SELLER 2 DOP: ${value}`);
+                // console.log(`Using seller1's sale date for SELLER 2 DOP: ${value}`);
             } else {
-                console.log('No seller 2 found, skipping SELLER 2 DOP field');
+                // console.log('No seller 2 found, skipping SELLER 2 DOP field');
                 continue;
             }
         }
         else if (label === 'SELLER 3 DOP') {
             if (Array.isArray(sellerData) && sellerData.length > 2) {
                 value = formatDate(seller1SaleDate);
-                console.log(`Using seller1's sale date for SELLER 3 DOP: ${value}`);
+                // console.log(`Using seller1's sale date for SELLER 3 DOP: ${value}`);
             } else {
-                console.log('No seller 3 found, skipping SELLER 3 DOP field');
+                // console.log('No seller 3 found, skipping SELLER 3 DOP field');
                 continue;
             }
         }
         else if (label === 'BUYER 1 LICENSE') {
             if (Array.isArray(ownersData) && ownersData.length > 0) {
                 value = ownersData[0].licenseNumber || '';
-                console.log(`Found buyer 1 license: ${value}`);
+                // console.log(`Found buyer 1 license: ${value}`);
             }
         }
         else if (label === 'BUYER 2 LICENSE') {
             if (Array.isArray(ownersData) && ownersData.length > 1) {
                 value = ownersData[1].licenseNumber || '';
-                console.log(`Found buyer 2 license: ${value}`);
+                // console.log(`Found buyer 2 license: ${value}`);
             } else {
-                console.log('No buyer 2 found, skipping BUYER 2 LICENSE field');
+                // console.log('No buyer 2 found, skipping BUYER 2 LICENSE field');
                 continue;
             }
         }
         else if (label === 'BUYER 3 LICENSE') {
             if (Array.isArray(ownersData) && ownersData.length > 2) {
                 value = ownersData[2].licenseNumber || '';
-                console.log(`Found buyer 3 license: ${value}`);
+                // console.log(`Found buyer 3 license: ${value}`);
             } else {
-                console.log('No buyer 3 found, skipping BUYER 3 LICENSE field');
+                // console.log('No buyer 3 found, skipping BUYER 3 LICENSE field');
                 continue;
             }
         }
         else if (label === 'SELLER 1 LICENSE') {
             if (Array.isArray(sellerData) && sellerData.length > 0) {
                 value = sellerData[0].licenseNumber || '';
-                console.log(`Found seller 1 license: ${value}`);
+                // console.log(`Found seller 1 license: ${value}`);
             }
         }
         else if (label === 'SELLER 2 LICENSE') {
             if (Array.isArray(sellerData) && sellerData.length > 1) {
                 value = sellerData[1].licenseNumber || '';
-                console.log(`Found seller 2 license: ${value}`);
+                // console.log(`Found seller 2 license: ${value}`);
             } else {
-                console.log('No seller 2 found, skipping SELLER 2 LICENSE field');
+                // console.log('No seller 2 found, skipping SELLER 2 LICENSE field');
                 continue;
             }
         }
         else if (label === 'SELLER 3 LICENSE') {
             if (Array.isArray(sellerData) && sellerData.length > 2) {
                 value = sellerData[2].licenseNumber || '';
-                console.log(`Found seller 3 license: ${value}`);
+                // console.log(`Found seller 3 license: ${value}`);
             } else {
-                console.log('No seller 3 found, skipping SELLER 3 LICENSE field');
+                // console.log('No seller 3 found, skipping SELLER 3 LICENSE field');
                 continue;
             }
         }
@@ -764,7 +768,7 @@ async function modifyDMVREG262Pdf(
                 } else {
                     value = phoneNumber;
                 }
-                console.log(`Found buyer 1 phone: ${value}`);
+                // console.log(`Found buyer 1 phone: ${value}`);
             }
         }
         else if (label === 'SELLER 1 PHONE') {
@@ -776,12 +780,12 @@ async function modifyDMVREG262Pdf(
                 } else {
                     value = phoneNumber;
                 }
-                console.log(`Found seller 1 phone: ${value}`);
+                // console.log(`Found seller 1 phone: ${value}`);
             }
         }
 
         if (value) {
-            console.log(`Drawing text for ${label} at (${position.x}, ${position.y}): "${value}"`);
+            // console.log(`Drawing text for ${label} at (${position.x}, ${position.y}): "${value}"`);
 
 
             let fontSize = 10;
@@ -789,7 +793,7 @@ async function modifyDMVREG262Pdf(
 
             if ((label === 'I/We' || label === 'to') && value.length > 30) {
                 fontSize = Math.max(6, 10 - ((value.length - 30) / 10));
-                console.log(`Reducing font size for ${label} to ${fontSize} (${value.length} characters)`);
+                // console.log(`Reducing font size for ${label} to ${fontSize} (${value.length} characters)`);
             }
 
             firstPage.drawText(value, {
@@ -826,6 +830,8 @@ async function modifyDMVREG262Pdf(
     return await pdfDoc.save();
 }
 async function modifyReg227Pdf(fileBytes, formData, effectiveTransactionType, transactionType) {
+    console.log("modifyReg227Pdf");
+
     const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
 
 
@@ -839,13 +845,13 @@ async function modifyReg227Pdf(fileBytes, formData, effectiveTransactionType, tr
     const isSimpleTransfer = normalizedTransactionType === "Simple Transfer";
     const isMultipleTransfer = normalizedTransactionType === "Multiple Transfer";
 
-    console.log(`Transaction type is ${effectiveTransactionType}, normalized to ${normalizedTransactionType}, isMultipleTransfer = ${isMultipleTransfer}`);
+    // console.log(`Transaction type is ${effectiveTransactionType}, normalized to ${normalizedTransactionType}, isMultipleTransfer = ${isMultipleTransfer}`);
 
-    console.log(`Transaction type is ${effectiveTransactionType}, isSimpleTransfer = ${isSimpleTransfer}`);
+    // console.log(`Transaction type is ${effectiveTransactionType}, isSimpleTransfer = ${isSimpleTransfer}`);
 
     const form = pdfDoc.getForm();
     const fieldNames = form.getFields().map(f => f.getName());
-    console.log('Available Reg227 PDF Fields:', JSON.stringify(fieldNames, null, 2));
+    // console.log('Available Reg227 PDF Fields:', JSON.stringify(fieldNames, null, 2));
 
     const fieldMapping = {
         seller1Name: '1 True Full Name, Last',
@@ -1037,7 +1043,7 @@ async function modifyReg227Pdf(fileBytes, formData, effectiveTransactionType, tr
                     : value;
 
                 field.setText(finalValue);
-                console.log(`Successfully filled field: ${fieldName}`);
+                // console.log(`Successfully filled field: ${fieldName}`);
             } else {
                 console.warn(`Field not found: ${fieldName}`);
             }
@@ -1051,7 +1057,7 @@ async function modifyReg227Pdf(fileBytes, formData, effectiveTransactionType, tr
             const checkbox = form.getCheckBox(fieldName);
             if (checkbox) {
                 value ? checkbox.check() : checkbox.uncheck();
-                console.log(`Successfully ${value ? 'checked' : 'unchecked'} checkbox: ${fieldName}`);
+                // console.log(`Successfully ${value ? 'checked' : 'unchecked'} checkbox: ${fieldName}`);
             } else {
                 console.warn(`Checkbox not found: ${fieldName}`);
             }
@@ -1345,7 +1351,7 @@ async function modifyReg227Pdf(fileBytes, formData, effectiveTransactionType, tr
         switch (reason) {
             case 'Lost':
                 safeSetCheckbox(fieldMapping.lostCheckbox, true);
-                console.log("it is lostttt");
+                // console.log("it is lostttt");
                 break;
             case 'Stolen':
                 safeSetCheckbox(fieldMapping.stolenCheckbox, true);
@@ -1521,15 +1527,15 @@ async function modifyReg227Pdf(fileBytes, formData, effectiveTransactionType, tr
     safeSetText(fieldMapping.vehicleHullId2, vehicleInfo.hullId || '');
     safeSetText(fieldMapping.vehicleYear2, yearMakeValue);
 
-    console.log('Transaction Type:', formData.transactionType);
+    // console.log('Transaction Type:', formData.transactionType);
 
     if (transactionType === "Lien Holder Removal" ||
         transactionType === "Lien Holder Addition" ||
         transactionType === "Duplicate Title Transfer") {
-        console.log('Setting checkbox for App for');
+        // console.log('Setting checkbox for App for');
         safeSetCheckbox(fieldMapping.appForCheckbox, true);
     } else {
-        console.log('Setting checkbox for App for2');
+        // console.log('Setting checkbox for App for2');
         safeSetCheckbox(fieldMapping.appFor2Checkbox, true);
     }
 
@@ -1540,9 +1546,9 @@ async function modifyReg227Pdf(fileBytes, formData, effectiveTransactionType, tr
     return await pdfDoc.save();
 }
 
-
-
 async function modifyReg343Pdf(fileBytes, formData, effectiveTransactionType) {
+    console.log("modifyReg343Pdf");
+
     try {
         const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
 
@@ -1558,15 +1564,15 @@ async function modifyReg343Pdf(fileBytes, formData, effectiveTransactionType) {
             throw new Error('Failed to get form from PDF');
         }
 
-        console.log('Processing Reg343 form (Out of State Title)');
+        // console.log('Processing Reg343 form (Out of State Title)');
 
 
-        console.log('Available fields in Reg343 form:');
+        // console.log('Available fields in Reg343 form:');
         const fields = form.getFields();
         for (const field of fields) {
             const fieldName = field.getName();
             const fieldType = field.constructor.name;
-            console.log(`Field: ${fieldName} (Type: ${fieldType})`);
+            // console.log(`Field: ${fieldName} (Type: ${fieldType})`);
         }
 
         const safeSetCheckbox = (fieldName, checked) => {
@@ -1578,7 +1584,7 @@ async function modifyReg343Pdf(fileBytes, formData, effectiveTransactionType) {
                     } else {
                         field.uncheck();
                     }
-                    console.log(`Successfully set checkbox: ${fieldName} to ${checked}`);
+                    // console.log(`Successfully set checkbox: ${fieldName} to ${checked}`);
                 } else {
                     console.warn(`Checkbox field not found: ${fieldName}`);
                 }
@@ -1592,7 +1598,7 @@ async function modifyReg343Pdf(fileBytes, formData, effectiveTransactionType) {
                 const field = form.getTextField(fieldName);
                 if (field) {
                     field.setText(value);
-                    console.log(`Successfully filled field: ${fieldName} with: ${value}`);
+                    // console.log(`Successfully filled field: ${fieldName} with: ${value}`);
                 } else {
                     console.warn(`Field not found: ${fieldName}`);
                 }
@@ -1604,7 +1610,7 @@ async function modifyReg343Pdf(fileBytes, formData, effectiveTransactionType) {
 
         if (effectiveTransactionType === "Commercial Vehicle Transfer") {
             safeSetCheckbox('Check Box24', true);
-            console.log('Commercial Vehicle Transfer detected, checked Check Box24');
+            // console.log('Commercial Vehicle Transfer detected, checked Check Box24');
         }
         if (formData.commercialVehicleQuestions) {
             const cvQuestions = formData.commercialVehicleQuestions;
@@ -1612,19 +1618,19 @@ async function modifyReg343Pdf(fileBytes, formData, effectiveTransactionType) {
 
             if (cvQuestions.isForHire === true) {
                 safeSetCheckbox('Check Box31', true);
-                console.log('Vehicle used for transportation for hire: YES (Check Box31)');
+                // console.log('Vehicle used for transportation for hire: YES (Check Box31)');
             } else if (cvQuestions.isForHire === false) {
                 safeSetCheckbox('Check Box34', true);
-                console.log('Vehicle used for transportation for hire: NO (Check Box34)');
+                // console.log('Vehicle used for transportation for hire: NO (Check Box34)');
             }
 
 
             if (cvQuestions.isCommercialOverWeight === true) {
                 safeSetCheckbox('Check Box35', true);
-                console.log('Commercial vehicle over weight: YES (Check Box35)');
+                // console.log('Commercial vehicle over weight: YES (Check Box35)');
             } else if (cvQuestions.isCommercialOverWeight === false) {
                 safeSetCheckbox('Check Box36', true);
-                console.log('Commercial vehicle over weight: NO (Check Box36)');
+                // console.log('Commercial vehicle over weight: NO (Check Box36)');
             }
         }
 
@@ -1635,28 +1641,28 @@ async function modifyReg343Pdf(fileBytes, formData, effectiveTransactionType) {
 
             if (commercialInfo.bodyModelType) {
                 safeSetText('Text17', commercialInfo.bodyModelType);
-                console.log('Successfully set Body Model Type (Text17) to', commercialInfo.bodyModelType);
+                // console.log('Successfully set Body Model Type (Text17) to', commercialInfo.bodyModelType);
             }
 
 
             if (commercialInfo.numberOfAxles) {
                 safeSetText('Text49', commercialInfo.numberOfAxles);
-                console.log('Successfully set Number of Axles (Text20) to', commercialInfo.numberOfAxles);
+                // console.log('Successfully set Number of Axles (Text20) to', commercialInfo.numberOfAxles);
             }
 
 
             if (commercialInfo.unladenWeight) {
                 safeSetText('Text50', commercialInfo.unladenWeight);
-                console.log('Successfully set Unladen Weight (Text21) to', commercialInfo.unladenWeight);
+                // console.log('Successfully set Unladen Weight (Text21) to', commercialInfo.unladenWeight);
             }
 
 
             if (commercialInfo.isEstimatedWeight === true) {
                 safeSetCheckbox('Check Box55', true);
-                console.log('Successfully set Estimated Weight checkbox (Check Box55) to true');
+                // console.log('Successfully set Estimated Weight checkbox (Check Box55) to true');
             } else if (commercialInfo.isEstimatedWeight === false) {
                 safeSetCheckbox('Check Box51', true);
-                console.log('Successfully set Actual Weight checkbox (Check Box51) to true');
+                // console.log('Successfully set Actual Weight checkbox (Check Box51) to true');
             }
         }
 
@@ -1748,22 +1754,22 @@ async function modifyReg343Pdf(fileBytes, formData, effectiveTransactionType) {
 
             if (formData.vehicleType.isAuto) {
                 safeSetCheckbox('Check Box20', true);
-                console.log('Successfully set Auto checkbox (Check Box9) to true');
+                // console.log('Successfully set Auto checkbox (Check Box9) to true');
             }
 
             if (formData.vehicleType.isMotorcycle) {
                 safeSetCheckbox('Check Box25', true);
-                console.log('Successfully set Motorcycle checkbox (Check Box11) to true');
+                // console.log('Successfully set Motorcycle checkbox (Check Box11) to true');
             }
 
             if (formData.vehicleType.isOffHighway) {
                 safeSetCheckbox('Check Box26', true);
-                console.log('Successfully set Off Highway checkbox (Check Box12) to true');
+                // console.log('Successfully set Off Highway checkbox (Check Box12) to true');
             }
 
             if (formData.vehicleType.isTrailerCoach) {
                 safeSetCheckbox('Check Box27', true);
-                console.log('Successfully set Trailer Coach checkbox (Check Box13) to true');
+                // console.log('Successfully set Trailer Coach checkbox (Check Box13) to true');
             }
         }
         if (formData.owners && formData.owners.length > 0) {
@@ -1860,7 +1866,7 @@ async function modifyReg343Pdf(fileBytes, formData, effectiveTransactionType) {
             }
             if (formData.address && formData.address.county) {
                 safeSetText('Text88', formData.address.county);
-                console.log('Successfully set county field Text88 to', formData.address.county);
+                // console.log('Successfully set county field Text88 to', formData.address.county);
             }
         }
 
@@ -1930,7 +1936,7 @@ async function modifyReg343Pdf(fileBytes, formData, effectiveTransactionType) {
 
 
             safeSetText('Text118', 'none');
-            console.log('No legal owner information found, setting Text118 to "none"');
+            // console.log('No legal owner information found, setting Text118 to "none"');
         }
 
 
@@ -2348,6 +2354,8 @@ async function modifyReg343Pdf(fileBytes, formData, effectiveTransactionType) {
     }
 }
 async function modifyReg488cPdf(fileBytes, formData, effectiveTransactionType) {
+    console.log("modifyReg488cPdf");
+    
     try {
         const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: false });
 
@@ -2363,12 +2371,12 @@ async function modifyReg488cPdf(fileBytes, formData, effectiveTransactionType) {
             throw new Error('Failed to get form from PDF');
         }
 
-        console.log('Processing Reg488c form (Application for Salvage Certificate)'); console.log('Available fields in Reg488c form:');
+        // // console.log('Processing Reg488c form (Application for Salvage Certificate)'); console.log('Available fields in Reg488c form:');
         const fields = form.getFields();
         for (const field of fields) {
             const fieldName = field.getName();
             const fieldType = field.constructor.name;
-            console.log(`Field: ${fieldName} (Type: ${fieldType})`);
+            // console.log(`Field: ${fieldName} (Type: ${fieldType})`);
         }
 
         const safeSetText = (fieldName, value) => {
@@ -2376,7 +2384,7 @@ async function modifyReg488cPdf(fileBytes, formData, effectiveTransactionType) {
                 const field = form.getTextField(fieldName);
                 if (field) {
                     field.setText(value);
-                    console.log(`Successfully filled field: ${fieldName} with: ${value}`);
+                    // console.log(`Successfully filled field: ${fieldName} with: ${value}`);
                 } else {
                     console.warn(`Field not found: ${fieldName}`);
                 }
@@ -2394,7 +2402,7 @@ async function modifyReg488cPdf(fileBytes, formData, effectiveTransactionType) {
                     } else {
                         field.uncheck();
                     }
-                    console.log(`Successfully set checkbox: ${fieldName} to: ${value}`);
+                    // console.log(`Successfully set checkbox: ${fieldName} to: ${value}`);
                 } else {
                     console.warn(`Checkbox field not found: ${fieldName}`);
                 }
@@ -2549,6 +2557,8 @@ async function modifyReg488cPdf(fileBytes, formData, effectiveTransactionType) {
 }
 
 async function modifyReg4008Pdf(fileBytes, formData, effectiveTransactionType) {
+    console.log("modifyReg343Pdf");
+    
     try {
         const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: false });
 
@@ -2564,14 +2574,14 @@ async function modifyReg4008Pdf(fileBytes, formData, effectiveTransactionType) {
             throw new Error('Failed to get form from PDF');
         }
 
-        console.log('Processing Reg4008 form (Verification of Vehicle)');
+        // console.log('Processing Reg4008 form (Verification of Vehicle)');
 
         const safeSetText = (fieldName, value) => {
             try {
                 const field = form.getTextField(fieldName);
                 if (field) {
                     field.setText(value);
-                    console.log(`Successfully filled field: ${fieldName} with: ${value}`);
+                    // console.log(`Successfully filled field: ${fieldName} with: ${value}`);
                 } else {
                     console.warn(`Field not found: ${fieldName}`);
                 }
@@ -2580,12 +2590,12 @@ async function modifyReg4008Pdf(fileBytes, formData, effectiveTransactionType) {
             }
         };
 
-        console.log('Available fields in Reg4008 form:');
+        // console.log('Available fields in Reg4008 form:');
         const fields = form.getFields();
         for (const field of fields) {
             const fieldName = field.getName();
             const fieldType = field.constructor.name;
-            console.log(`Field: ${fieldName} (Type: ${fieldType})`);
+            // console.log(`Field: ${fieldName} (Type: ${fieldType})`);
         }
 
         try {
@@ -2632,7 +2642,7 @@ async function modifyReg4008Pdf(fileBytes, formData, effectiveTransactionType) {
                     } else {
                         field.uncheck();
                     }
-                    console.log(`Successfully set checkbox: ${fieldName} to ${checked}`);
+                    // console.log(`Successfully set checkbox: ${fieldName} to ${checked}`);
                 } else {
                     console.warn(`Checkbox field not found: ${fieldName}`);
                 }
@@ -2657,7 +2667,7 @@ async function modifyReg4008Pdf(fileBytes, formData, effectiveTransactionType) {
             safeSetCheckbox('Check Box1', isOutOfState);
             if (address.county) {
                 safeSetText('Address.0.1', address.county);
-                console.log(`Successfully filled county field Address.0.1 with: ${address.county}`);
+                // console.log(`Successfully filled county field Address.0.1 with: ${address.county}`);
             }
 
             if (address.city) {
@@ -2733,7 +2743,7 @@ async function modifyReg4008Pdf(fileBytes, formData, effectiveTransactionType) {
                             }
                         }
 
-                        console.log(`Successfully filled field: Make -1.0 with: ${vInfo.make}`);
+                        // console.log(`Successfully filled field: Make -1.0 with: ${vInfo.make}`);
                     }
                 } catch (error) {
                     console.error(`Error filling Make field:`, error);
@@ -2772,7 +2782,7 @@ async function modifyReg4008Pdf(fileBytes, formData, effectiveTransactionType) {
                                 const fontSize = vehicle.make.length > 10 ? 7 : 8;
                                 field.setFontSize(fontSize);
                             }
-                            console.log(`Successfully filled field: Make -1${suffix} with: ${vehicle.make}`);
+                            // console.log(`Successfully filled field: Make -1${suffix} with: ${vehicle.make}`);
                         }
                     } catch (error) {
                         console.error(`Error filling Make field:`, error);
@@ -2800,7 +2810,7 @@ async function modifyReg4008Pdf(fileBytes, formData, effectiveTransactionType) {
                             if (textLength > 10) {
                                 field.setFontSize(8);
                             }
-                            console.log(`Successfully filled field: GVW -1${suffix} with: ${vehicle.gvwWeight}`);
+                            // console.log(`Successfully filled field: GVW -1${suffix} with: ${vehicle.gvwWeight}`);
                         }
                     } catch (error) {
                         console.error(`Error filling GVW field:`, error);
@@ -2819,7 +2829,7 @@ async function modifyReg4008Pdf(fileBytes, formData, effectiveTransactionType) {
                             if (textLength > 10) {
                                 field.setFontSize(8);
                             }
-                            console.log(`Successfully filled field: CGW -1${suffix} with: ${vehicle.cgwWeight}`);
+                            // console.log(`Successfully filled field: CGW -1${suffix} with: ${vehicle.cgwWeight}`);
                         }
                     } catch (error) {
                         console.error(`Error filling CGW field:`, error);
@@ -2852,6 +2862,8 @@ async function modifyReg4008Pdf(fileBytes, formData, effectiveTransactionType) {
 }
 
 async function modifyReg590Pdf(fileBytes, formData, effectiveTransactionType) {
+    console.log("modifyReg590Pdf");
+    
     try {
         const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: false });
 
@@ -2867,12 +2879,12 @@ async function modifyReg590Pdf(fileBytes, formData, effectiveTransactionType) {
             throw new Error('Failed to get form from PDF');
         }
 
-        console.log('Processing Reg590 form (Vehicle Transfer & Reassignment Form)'); console.log('Available fields in Reg590 form:');
+        // // console.log('Processing Reg590 form (Vehicle Transfer & Reassignment Form)'); console.log('Available fields in Reg590 form:');
         const fields = form.getFields();
         for (const field of fields) {
             const fieldName = field.getName();
             const fieldType = field.constructor.name;
-            console.log(`Field: ${fieldName} (Type: ${fieldType})`);
+            // console.log(`Field: ${fieldName} (Type: ${fieldType})`);
         }
 
         const safeSetCheckbox = (fieldName, checked) => {
@@ -2884,7 +2896,7 @@ async function modifyReg590Pdf(fileBytes, formData, effectiveTransactionType) {
                     } else {
                         field.uncheck();
                     }
-                    console.log(`Successfully set checkbox: ${fieldName} to ${checked}`);
+                    // console.log(`Successfully set checkbox: ${fieldName} to ${checked}`);
                 } else {
                     console.warn(`Checkbox field not found: ${fieldName}`);
                 }
@@ -2898,7 +2910,7 @@ async function modifyReg590Pdf(fileBytes, formData, effectiveTransactionType) {
                 const field = form.getTextField(fieldName);
                 if (field) {
                     field.setText(value);
-                    console.log(`Successfully filled field: ${fieldName} with: ${value}`);
+                    // console.log(`Successfully filled field: ${fieldName} with: ${value}`);
                 } else {
                     console.warn(`Field not found: ${fieldName}`);
                 }
@@ -2938,10 +2950,10 @@ async function modifyReg590Pdf(fileBytes, formData, effectiveTransactionType) {
                     }
                 }
             } if (formData.vehicleTypeInfo.commercialStartDate) {
-                console.log('Setting commercialStartDate in Text14:', formData.vehicleTypeInfo.commercialStartDate);
+                // console.log('Setting commercialStartDate in Text14:', formData.vehicleTypeInfo.commercialStartDate);
                 safeSetText('Text14', formData.vehicleTypeInfo.commercialStartDate);
             } else {
-                console.log('commercialStartDate is not available');
+                // console.log('commercialStartDate is not available');
             }
         } try {
             const today = new Date();
@@ -2980,8 +2992,9 @@ async function modifyReg590Pdf(fileBytes, formData, effectiveTransactionType) {
     }
 }
 
-
 async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
+    console.log("modifyREG102Pdf");
+    
     try {
         const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
 
@@ -2997,42 +3010,42 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
             throw new Error('Failed to get form from PDF');
         }
 
-        console.log('Incoming effectiveTransactionType parameter:', effectiveTransactionType);
-        console.log('Raw formData.type:', formData.type);
-        console.log('Raw formData.transactionType:', formData.transactionType);
+        // console.log('Incoming effectiveTransactionType parameter:', effectiveTransactionType);
+        // console.log('Raw formData.type:', formData.type);
+        // console.log('Raw formData.transactionType:', formData.transactionType);
 
         let transactionType = '';
 
         if (effectiveTransactionType) {
             transactionType = effectiveTransactionType;
-            console.log(`Using provided effectiveTransactionType: "${transactionType}"`);
+            // console.log(`Using provided effectiveTransactionType: "${transactionType}"`);
         } else if (formData.type) {
             transactionType = formData.type;
-            console.log(`Found transaction type in formData.type: "${transactionType}"`);
+            // console.log(`Found transaction type in formData.type: "${transactionType}"`);
         } else if (formData.transactionType) {
             transactionType = formData.transactionType;
-            console.log(`Found transaction type in formData.transactionType: "${transactionType}"`);
+            // console.log(`Found transaction type in formData.transactionType: "${transactionType}"`);
         } else if (formData.formData && formData.formData.type) {
             transactionType = formData.formData.type;
-            console.log(`Found transaction type in formData.formData.type: "${transactionType}"`);
+            // console.log(`Found transaction type in formData.formData.type: "${transactionType}"`);
         } else if (formData.formData && formData.formData.transactionType) {
             transactionType = formData.formData.transactionType;
-            console.log(`Found transaction type in formData.formData.transactionType: "${transactionType}"`);
+            // console.log(`Found transaction type in formData.formData.transactionType: "${transactionType}"`);
         }
 
         if (!transactionType && formData.pnoDetails) {
             transactionType = "Filing PNO Transfer";
-            console.log(`No transaction type found, but pnoDetails exists. Setting to: "${transactionType}"`);
+            // console.log(`No transaction type found, but pnoDetails exists. Setting to: "${transactionType}"`);
         }
 
         const isFilingPNOTransfer = transactionType === "Filing PNO Transfer";
         const isCertificateOfNonOperationTransfer = transactionType === "Certificate Of Non-Operation Transfer";
 
-        console.log(`Processing REG102 form for ${transactionType || 'unknown'} transaction type`);
-        console.log(`isFilingPNOTransfer: ${isFilingPNOTransfer}, isCertificateOfNonOperationTransfer: ${isCertificateOfNonOperationTransfer}`);
+        // console.log(`Processing REG102 form for ${transactionType || 'unknown'} transaction type`);
+        // console.log(`isFilingPNOTransfer: ${isFilingPNOTransfer}, isCertificateOfNonOperationTransfer: ${isCertificateOfNonOperationTransfer}`);
 
         const fields = form.getFields();
-        console.log(`Found ${fields.length} form fields in REG102 PDF:`);
+        // console.log(`Found ${fields.length} form fields in REG102 PDF:`);
         const textFields = [];
         const checkboxFields = [];
         const radioGroupFields = [];
@@ -3055,10 +3068,10 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
             }
         });
 
-        console.log('Text Fields:', textFields);
-        console.log('Checkbox Fields:', checkboxFields);
-        console.log('Radio Group Fields:', radioGroupFields);
-        console.log('Other Fields:', otherFields);
+        // console.log('Text Fields:', textFields);
+        // console.log('Checkbox Fields:', checkboxFields);
+        // console.log('Radio Group Fields:', radioGroupFields);
+        // console.log('Other Fields:', otherFields);
 
         const safeSetCheckbox = (fieldName, checked) => {
             try {
@@ -3069,7 +3082,7 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
                     } else {
                         field.uncheck();
                     }
-                    console.log(`Successfully set checkbox: ${fieldName} to ${checked}`);
+                    // console.log(`Successfully set checkbox: ${fieldName} to ${checked}`);
                 } else {
                     console.warn(`Checkbox field not found: ${fieldName}`);
                 }
@@ -3084,7 +3097,7 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
                 const field = form.getTextField(fieldName);
                 if (field) {
                     field.setText(value);
-                    console.log(`Successfully filled field: ${fieldName}`);
+                    // console.log(`Successfully filled field: ${fieldName}`);
                 } else {
                     console.warn(`Field not found: ${fieldName}`);
                 }
@@ -3099,12 +3112,12 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
 
             if (isCertificateOfNonOperationTransfer) {
                 safeSetText('certify date', formattedDate);
-                console.log(`Set certify date for Certificate Of Non-Operation Transfer: ${formattedDate}`);
+                // console.log(`Set certify date for Certificate Of Non-Operation Transfer: ${formattedDate}`);
             } else if (isFilingPNOTransfer) {
                 safeSetText('cert date', formattedDate);
-                console.log(`Set cert date for Filing PNO Transfer: ${formattedDate}`);
+                // console.log(`Set cert date for Filing PNO Transfer: ${formattedDate}`);
             } else {
-                console.log(`Skipping date fields for unknown transaction type: ${transactionType}`);
+                // console.log(`Skipping date fields for unknown transaction type: ${transactionType}`);
             }
         } catch (error) {
             console.error('Error setting certification date:', error);
@@ -3120,7 +3133,7 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
                         safeSetText('from month.0', fromDateParts[0]);
                         safeSetText('from day.0', fromDateParts[1]);
                         safeSetText('from year.0', fromDateParts[2]);
-                        console.log(`Set storage from date for Certificate Of Non-Operation Transfer: ${storage.fromDate}`);
+                        // console.log(`Set storage from date for Certificate Of Non-Operation Transfer: ${storage.fromDate}`);
                     }
                 }
 
@@ -3130,31 +3143,31 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
                         safeSetText('to month', toDateParts[0]);
                         safeSetText('to day', toDateParts[1]);
                         safeSetText('to year', toDateParts[2]);
-                        console.log(`Set storage to date for Certificate Of Non-Operation Transfer: ${storage.toDate}`);
+                        // console.log(`Set storage to date for Certificate Of Non-Operation Transfer: ${storage.toDate}`);
                     }
                 }
 
                 if (storage.address) {
                     safeSetText('address', storage.address);
-                    console.log(`Set storage address for Certificate Of Non-Operation Transfer: ${storage.address}`);
+                    // console.log(`Set storage address for Certificate Of Non-Operation Transfer: ${storage.address}`);
                 }
 
                 if (storage.city) {
                     safeSetText('city', storage.city);
-                    console.log(`Set storage city for Certificate Of Non-Operation Transfer: ${storage.city}`);
+                    // console.log(`Set storage city for Certificate Of Non-Operation Transfer: ${storage.city}`);
                 }
 
                 if (storage.state) {
                     safeSetText('state', storage.state);
-                    console.log(`Set storage state for Certificate Of Non-Operation Transfer: ${storage.state}`);
+                    // console.log(`Set storage state for Certificate Of Non-Operation Transfer: ${storage.state}`);
                 }
 
                 if (storage.zipCode) {
                     safeSetText('zip', storage.zipCode);
-                    console.log(`Set storage zip code for Certificate Of Non-Operation Transfer: ${storage.zipCode}`);
+                    // console.log(`Set storage zip code for Certificate Of Non-Operation Transfer: ${storage.zipCode}`);
                 }
             } else {
-                console.log('Storage location data skipped for transaction type:', transactionType);
+                // console.log('Storage location data skipped for transaction type:', transactionType);
             }
         }
 
@@ -3167,30 +3180,30 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
                 const hasAfterExpiration = allCheckboxes.includes('afterexpiration');
                 const hasRequestPnoCard = allCheckboxes.includes('requestpnocard');
 
-                console.log(`Checkbox availability - BeforeExpiration: ${hasBeforeExpiration}, AfterExpiration: ${hasAfterExpiration}, RequestPnoCard: ${hasRequestPnoCard}`);
+                // console.log(`Checkbox availability - BeforeExpiration: ${hasBeforeExpiration}, AfterExpiration: ${hasAfterExpiration}, RequestPnoCard: ${hasRequestPnoCard}`);
 
                 if (hasBeforeExpiration || hasAfterExpiration || hasRequestPnoCard) {
                     if ((isFilingPNOTransfer || isCertificateOfNonOperationTransfer) &&
                         pnoDetails.isBeforeRegExpires) {
                         if (hasBeforeExpiration) {
                             safeSetCheckbox('BeforeExpiration', true);
-                            console.log(`Set before registration expires checkbox for ${transactionType}`);
+                            // console.log(`Set before registration expires checkbox for ${transactionType}`);
                         }
                     } else if ((isFilingPNOTransfer || isCertificateOfNonOperationTransfer) &&
                         !pnoDetails.isBeforeRegExpires &&
                         hasAfterExpiration) {
                         safeSetCheckbox('AfterExpiration', true);
-                        console.log(`Set after registration expires checkbox for ${transactionType}`);
+                        // console.log(`Set after registration expires checkbox for ${transactionType}`);
                     }
 
                     if ((isFilingPNOTransfer || isCertificateOfNonOperationTransfer) &&
                         pnoDetails.requestPnoCard &&
                         hasRequestPnoCard) {
                         safeSetCheckbox('RequestPnoCard', true);
-                        console.log(`Set request PNO card checkbox for ${transactionType}`);
+                        // console.log(`Set request PNO card checkbox for ${transactionType}`);
                     }
                 } else {
-                    console.log('PNO checkboxes not found in form');
+                    // console.log('PNO checkboxes not found in form');
                 }
             } catch (error) {
                 console.error('Error setting PNO checkboxes:', error);
@@ -3202,7 +3215,7 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
                 entry.vehicleLicensePlate || entry.vehicleIdNumber || entry.vehicleMake || entry.equipmentNumber
             );
 
-            console.log(`Processing ${entries.length} non-empty vehicle entries for ${transactionType}`);
+            // console.log(`Processing ${entries.length} non-empty vehicle entries for ${transactionType}`);
 
             if (isFilingPNOTransfer) {
                 const maxEntries = Math.min(entries.length, 9);
@@ -3211,22 +3224,22 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
 
                     if (entry.vehicleLicensePlate) {
                         safeSetText(`veh lic plate #.${i}`, entry.vehicleLicensePlate);
-                        console.log(`Set veh lic plate #.${i} to ${entry.vehicleLicensePlate} for Filing PNO Transfer`);
+                        // console.log(`Set veh lic plate #.${i} to ${entry.vehicleLicensePlate} for Filing PNO Transfer`);
                     }
 
                     if (entry.vehicleIdNumber) {
                         safeSetText(`veh id #.${i}`, entry.vehicleIdNumber);
-                        console.log(`Set veh id #.${i} to ${entry.vehicleIdNumber} for Filing PNO Transfer`);
+                        // console.log(`Set veh id #.${i} to ${entry.vehicleIdNumber} for Filing PNO Transfer`);
                     }
 
                     if (entry.vehicleMake) {
                         safeSetText(`veh make.${i}`, entry.vehicleMake);
-                        console.log(`Set veh make.${i} to ${entry.vehicleMake} for Filing PNO Transfer`);
+                        // console.log(`Set veh make.${i} to ${entry.vehicleMake} for Filing PNO Transfer`);
                     }
 
                     if (entry.equipmentNumber) {
                         safeSetText(`veh equip #.${i}`, entry.equipmentNumber);
-                        console.log(`Set veh equip #.${i} to ${entry.equipmentNumber} for Filing PNO Transfer`);
+                        // console.log(`Set veh equip #.${i} to ${entry.equipmentNumber} for Filing PNO Transfer`);
                     }
                 }
             } else if (isCertificateOfNonOperationTransfer) {
@@ -3236,26 +3249,26 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
 
                     if (entry.vehicleLicensePlate) {
                         safeSetText(`license plate #.${i}`, entry.vehicleLicensePlate);
-                        console.log(`Set license plate #.${i} to ${entry.vehicleLicensePlate} for Certificate Of Non-Operation Transfer`);
+                        // console.log(`Set license plate #.${i} to ${entry.vehicleLicensePlate} for Certificate Of Non-Operation Transfer`);
                     }
 
                     if (entry.vehicleIdNumber) {
                         safeSetText(`vin.${i}`, entry.vehicleIdNumber);
-                        console.log(`Set vin.${i} to ${entry.vehicleIdNumber} for Certificate Of Non-Operation Transfer`);
+                        // console.log(`Set vin.${i} to ${entry.vehicleIdNumber} for Certificate Of Non-Operation Transfer`);
                     }
 
                     if (entry.vehicleMake) {
                         safeSetText(`make.${i}`, entry.vehicleMake);
-                        console.log(`Set make.${i} to ${entry.vehicleMake} for Certificate Of Non-Operation Transfer`);
+                        // console.log(`Set make.${i} to ${entry.vehicleMake} for Certificate Of Non-Operation Transfer`);
                     }
 
                     if (entry.equipmentNumber) {
                         safeSetText(`equip #.${i}`, entry.equipmentNumber);
-                        console.log(`Set equip #.${i} to ${entry.equipmentNumber} for Certificate Of Non-Operation Transfer`);
+                        // console.log(`Set equip #.${i} to ${entry.equipmentNumber} for Certificate Of Non-Operation Transfer`);
                     }
                 }
             } else {
-                console.log(`Skipping vehicle entries for unknown transaction type: ${transactionType}`);
+                // console.log(`Skipping vehicle entries for unknown transaction type: ${transactionType}`);
             }
         }
 
@@ -3270,17 +3283,17 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
                 ].filter(Boolean).join(' ');
 
                 safeSetText('OwnerName', fullName);
-                console.log(`Set owner name for ${transactionType}: ${fullName}`);
+                // console.log(`Set owner name for ${transactionType}: ${fullName}`);
             }
 
             if (seller.licenseNumber) {
                 safeSetText('DriverLicense', seller.licenseNumber);
-                console.log(`Set driver license for ${transactionType}: ${seller.licenseNumber}`);
+                // console.log(`Set driver license for ${transactionType}: ${seller.licenseNumber}`);
             }
 
             if (seller.dob) {
                 safeSetText('OwnerDOB', seller.dob);
-                console.log(`Set owner date of birth for ${transactionType}: ${seller.dob}`);
+                // console.log(`Set owner date of birth for ${transactionType}: ${seller.dob}`);
             }
 
             if (seller.phone) {
@@ -3293,13 +3306,13 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
                     if (isFilingPNOTransfer) {
                         safeSetText('daytime area code', areaCode);
                         safeSetText('daytime phone', phoneNumber);
-                        console.log(`Set daytime area code and daytime phone for Filing PNO Transfer: (${areaCode}) ${phoneNumber}`);
+                        // console.log(`Set daytime area code and daytime phone for Filing PNO Transfer: (${areaCode}) ${phoneNumber}`);
                     } else if (isCertificateOfNonOperationTransfer) {
                         safeSetText('area code', areaCode);
                         safeSetText('phone', phoneNumber);
-                        console.log(`Set area code and phone for Certificate Of Non-Operation Transfer: (${areaCode}) ${phoneNumber}`);
+                        // console.log(`Set area code and phone for Certificate Of Non-Operation Transfer: (${areaCode}) ${phoneNumber}`);
                     } else {
-                        console.log(`Skipping phone fields for unknown transaction type: ${transactionType}`);
+                        // console.log(`Skipping phone fields for unknown transaction type: ${transactionType}`);
                     }
                 } else if (cleanPhone.length > 0) {
                     let areaCode = '';
@@ -3317,7 +3330,7 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
                         safeSetText('area code', areaCode);
                         safeSetText('phone', phoneNumber);
                     } else {
-                        console.log(`Skipping phone fields for unknown transaction type: ${transactionType}`);
+                        // console.log(`Skipping phone fields for unknown transaction type: ${transactionType}`);
                     }
                 }
             }
@@ -3330,25 +3343,25 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
             if (address.street) {
                 fullAddress += address.street;
                 safeSetText('StreetAddress', address.street);
-                console.log(`Set street address for ${transactionType}: ${address.street}`);
+                // console.log(`Set street address for ${transactionType}: ${address.street}`);
             }
 
             if (address.city) {
                 safeSetText('City', address.city);
-                console.log(`Set city for ${transactionType}: ${address.city}`);
+                // console.log(`Set city for ${transactionType}: ${address.city}`);
             }
 
             if (address.state) {
                 safeSetText('State', address.state);
-                console.log(`Set state for ${transactionType}: ${address.state}`);
+                // console.log(`Set state for ${transactionType}: ${address.state}`);
             }
 
             if (address.zip) {
                 safeSetText('ZipCode', address.zip);
-                console.log(`Set zip code for ${transactionType}: ${address.zip}`);
+                // console.log(`Set zip code for ${transactionType}: ${address.zip}`);
             }
 
-            console.log(`Set full address for ${transactionType}: ${fullAddress}`);
+            // console.log(`Set full address for ${transactionType}: ${fullAddress}`);
         }
 
         if (formData.sellerMailingAddressDifferent && formData.sellerMailingAddress) {
@@ -3358,34 +3371,34 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
             if (mailingAddress.street) {
                 fullMailingAddress += mailingAddress.street;
                 safeSetText('MailingStreetAddress', mailingAddress.street);
-                console.log(`Set mailing street address for ${transactionType}: ${mailingAddress.street}`);
+                // console.log(`Set mailing street address for ${transactionType}: ${mailingAddress.street}`);
             }
 
             if (mailingAddress.city) {
                 safeSetText('MailingCity', mailingAddress.city);
-                console.log(`Set mailing city for ${transactionType}: ${mailingAddress.city}`);
+                // console.log(`Set mailing city for ${transactionType}: ${mailingAddress.city}`);
             }
 
             if (mailingAddress.state) {
                 safeSetText('MailingState', mailingAddress.state);
-                console.log(`Set mailing state for ${transactionType}: ${mailingAddress.state}`);
+                // console.log(`Set mailing state for ${transactionType}: ${mailingAddress.state}`);
             }
 
             if (mailingAddress.zip) {
                 safeSetText('MailingZipCode', mailingAddress.zip);
-                console.log(`Set mailing zip code for ${transactionType}: ${mailingAddress.zip}`);
+                // console.log(`Set mailing zip code for ${transactionType}: ${mailingAddress.zip}`);
             }
 
-            console.log(`Set mailing address for ${transactionType}: ${fullMailingAddress}`);
+            // console.log(`Set mailing address for ${transactionType}: ${fullMailingAddress}`);
         }
 
         try {
             const hasOwnerSignature = textFields.some(field => field.name === 'OwnerSignature');
             if (hasOwnerSignature) {
                 safeSetText('OwnerSignature', '[Signature on file]');
-                console.log(`Set signature placeholder for ${transactionType}`);
+                // console.log(`Set signature placeholder for ${transactionType}`);
             } else {
-                console.log('OwnerSignature field not found in form');
+                // console.log('OwnerSignature field not found in form');
             }
         } catch (error) {
             console.error('Error setting signature:', error);
@@ -3410,6 +3423,8 @@ async function modifyREG102Pdf(fileBytes, formData, effectiveTransactionType) {
 }
 
 async function modifyREG17Pdf(fileBytes, formData, transactionType) {
+    console.log("modifyREG17Pdf");
+    
     try {
         const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
 
@@ -3425,7 +3440,7 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
             throw new Error('Failed to get form from PDF');
         }
 
-        console.log('Processing REG17 form for transaction type:', transactionType);
+        // console.log('Processing REG17 form for transaction type:', transactionType);
 
 
         const safeSetCheckbox = (fieldName, checked) => {
@@ -3437,7 +3452,7 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
                     } else {
                         field.uncheck();
                     }
-                    console.log(`Successfully set checkbox: ${fieldName} to ${checked}`);
+                    // console.log(`Successfully set checkbox: ${fieldName} to ${checked}`);
                 } else {
                     console.warn(`Checkbox field not found: ${fieldName}`);
                 }
@@ -3451,7 +3466,7 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
                 const field = form.getTextField(fieldName);
                 if (field) {
                     field.setText(value);
-                    console.log(`Successfully filled field: ${fieldName}`);
+                    // console.log(`Successfully filled field: ${fieldName}`);
                 } else {
                     console.warn(`Field not found: ${fieldName}`);
                 }
@@ -3465,123 +3480,123 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
             const today = new Date();
             const formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
             safeSetText("Text74", formattedDate);
-            console.log(`Set current date fields with: ${formattedDate}`);
+            // console.log(`Set current date fields with: ${formattedDate}`);
         } catch (error) {
             console.error('Error setting current date:', error);
         }
 
 
         if (transactionType === "Personalized Plates (Order)") {
-            console.log('Transaction type is "Personalized Plates (Order)", checking Check Box1');
+            // console.log('Transaction type is "Personalized Plates (Order)", checking Check Box1');
             safeSetCheckbox("Check Box1", true);
         } else if (transactionType === "Personalized Plates (Replacement)") {
-            console.log('Transaction type is "Personalized Plates (Replacement)", checking Check Box2');
+            // console.log('Transaction type is "Personalized Plates (Replacement)", checking Check Box2');
             safeSetCheckbox("Check Box2", true);
         } else if (transactionType === "Personalized Plates (Reassignment)") {
-            console.log('Transaction type is "Personalized Plates (Reassignment)", checking Check Box3');
+            // console.log('Transaction type is "Personalized Plates (Reassignment)", checking Check Box3');
             safeSetCheckbox("Check Box3", true);
         } else if (transactionType === "Personalized Plates (Exchange)") {
-            console.log('Transaction type is "Personalized Plates (Exchange)", checking Check Box4');
+            // console.log('Transaction type is "Personalized Plates (Exchange)", checking Check Box4');
             safeSetCheckbox("Check Box4", true);
         } else {
-            console.log('Unknown transaction type:', transactionType);
+            // console.log('Unknown transaction type:', transactionType);
         }
 
 
         if (transactionType === "Personalized Plates (Reassignment)" && formData.reassignmentSection) {
             const reassignmentInfo = formData.reassignmentSection;
-            console.log('Processing reassignment section information:', reassignmentInfo);
+            // console.log('Processing reassignment section information:', reassignmentInfo);
 
 
             if (reassignmentInfo.specialInterestLicensePlate) {
                 safeSetText('Text56', reassignmentInfo.specialInterestLicensePlate);
-                console.log(`Set special interest license plate number: ${reassignmentInfo.specialInterestLicensePlate}`);
+                // console.log(`Set special interest license plate number: ${reassignmentInfo.specialInterestLicensePlate}`);
             }
 
 
             if (reassignmentInfo.removedFrom) {
                 safeSetText('Text57', reassignmentInfo.removedFrom);
-                console.log(`Set removed from VIN: ${reassignmentInfo.removedFrom}`);
+                // console.log(`Set removed from VIN: ${reassignmentInfo.removedFrom}`);
             }
 
 
             if (reassignmentInfo.placedOnLicensePlate) {
                 safeSetText('Text58', reassignmentInfo.placedOnLicensePlate);
-                console.log(`Set placed on license plate: ${reassignmentInfo.placedOnLicensePlate}`);
+                // console.log(`Set placed on license plate: ${reassignmentInfo.placedOnLicensePlate}`);
             }
 
 
             if (reassignmentInfo.placedOnVehicle) {
                 safeSetText('Text59', reassignmentInfo.placedOnVehicle);
-                console.log(`Set placed on vehicle VIN: ${reassignmentInfo.placedOnVehicle}`);
+                // console.log(`Set placed on vehicle VIN: ${reassignmentInfo.placedOnVehicle}`);
             }
 
 
             if (reassignmentInfo.retainInterest) {
                 safeSetCheckbox('Check Box60', true);
-                console.log('Checked retain interest checkbox');
+                // console.log('Checked retain interest checkbox');
             }
 
 
             if (reassignmentInfo.feeEnclosed) {
                 safeSetCheckbox('Check Box61', true);
-                console.log('Checked fee enclosed checkbox');
+                // console.log('Checked fee enclosed checkbox');
             }
 
 
             if (reassignmentInfo.releaseInterestDMV) {
                 safeSetCheckbox('Check Box62', true);
-                console.log('Checked release interest to DMV checkbox');
+                // console.log('Checked release interest to DMV checkbox');
             }
 
 
             if (reassignmentInfo.releaseInterestNewOwner) {
                 safeSetCheckbox('Check Box63', true);
-                console.log('Checked release interest to new owner checkbox');
+                // console.log('Checked release interest to new owner checkbox');
             }
         } else if (transactionType === "Personalized Plates (Reassignment)") {
-            console.log('Transaction type is Reassignment but no reassignmentSection data provided');
+            // console.log('Transaction type is Reassignment but no reassignmentSection data provided');
         }
 
 
         if (transactionType === "Personalized Plates (Replacement)" && formData.replacementSection) {
             const replacementInfo = formData.replacementSection;
-            console.log('Processing replacement section information:', replacementInfo);
+            // console.log('Processing replacement section information:', replacementInfo);
 
 
             if (replacementInfo.specialInterestLicensePlate) {
                 safeSetText('Text28', replacementInfo.specialInterestLicensePlate);
-                console.log(`Set special interest license plate number: ${replacementInfo.specialInterestLicensePlate}`);
+                // console.log(`Set special interest license plate number: ${replacementInfo.specialInterestLicensePlate}`);
             }
 
 
             if (replacementInfo.ineed === 'One Plate') {
                 safeSetCheckbox('Check Box29', true);
-                console.log('Selected One Plate option');
+                // console.log('Selected One Plate option');
             } else if (replacementInfo.ineed === 'Two Plates') {
                 safeSetCheckbox('Check Box30', true);
-                console.log('Selected Two Plates option');
+                // console.log('Selected Two Plates option');
             }
 
 
             if (replacementInfo.plateStatus === 'Lost') {
                 safeSetCheckbox('Check Box31', true);
-                console.log('Selected Lost plate status');
+                // console.log('Selected Lost plate status');
             } else if (replacementInfo.plateStatus === 'Mutilated') {
                 safeSetCheckbox('Check Box32', true);
-                console.log('Selected Mutilated plate status');
+                // console.log('Selected Mutilated plate status');
             } else if (replacementInfo.plateStatus === 'Stolen') {
                 safeSetCheckbox('Check Box33', true);
-                console.log('Selected Stolen plate status');
+                // console.log('Selected Stolen plate status');
             }
         } else if (transactionType === "Personalized Plates (Replacement)") {
-            console.log('Transaction type is Replacement but no replacementSection data provided');
+            // console.log('Transaction type is Replacement but no replacementSection data provided');
         }
 
 
         if (formData.plateSelection) {
             const plateSelection = formData.plateSelection;
-            console.log('Processing plate selection:', plateSelection);
+            // console.log('Processing plate selection:', plateSelection);
 
 
             const plateTypeMapping = {
@@ -3607,7 +3622,7 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
             const plateType = plateSelection.plateType;
             if (plateType && plateType in plateTypeMapping) {
                 safeSetCheckbox(plateTypeMapping[plateType], true);
-                console.log(`Checked checkbox for plate type: ${plateType} -> ${plateTypeMapping[plateType]}`);
+                // console.log(`Checked checkbox for plate type: ${plateType} -> ${plateTypeMapping[plateType]}`);
             } else if (plateType) {
                 console.warn(`No mapping found for plate type: ${plateType}`);
             }
@@ -3615,20 +3630,20 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
 
             if (plateType === 'Veterans\' Organization' && plateSelection.organizationalCode) {
                 safeSetText('Text18', plateSelection.organizationalCode);
-                console.log(`Set organization code: ${plateSelection.organizationalCode}`);
+                // console.log(`Set organization code: ${plateSelection.organizationalCode}`);
             }
 
 
             if (plateType === 'Duplicate Decal' && plateSelection.duplicateDecalNumber) {
                 safeSetText('Text13', plateSelection.duplicateDecalNumber);
-                console.log(`Set duplicate decal number: ${plateSelection.duplicateDecalNumber}`);
+                // console.log(`Set duplicate decal number: ${plateSelection.duplicateDecalNumber}`);
             }
         }
 
 
         if (formData.selectConfiguration) {
             const selectConfig = formData.selectConfiguration;
-            console.log('Processing select configuration:', selectConfig);
+            // console.log('Processing select configuration:', selectConfig);
 
 
             if (selectConfig.vehicleType) {
@@ -3641,7 +3656,7 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
 
                 if (selectConfig.vehicleType in vehicleTypeMapping) {
                     safeSetCheckbox(vehicleTypeMapping[selectConfig.vehicleType], true);
-                    console.log(`Checked vehicle type: ${selectConfig.vehicleType} -> ${vehicleTypeMapping[selectConfig.vehicleType]}`);
+                    // console.log(`Checked vehicle type: ${selectConfig.vehicleType} -> ${vehicleTypeMapping[selectConfig.vehicleType]}`);
                 }
             }
 
@@ -3649,28 +3664,28 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
             if (selectConfig.plateType) {
                 if (selectConfig.plateType === 'Sequential') {
                     safeSetCheckbox('Check Box23', true);
-                    console.log('Selected Sequential plate type');
+                    // console.log('Selected Sequential plate type');
 
 
                     if (selectConfig.currentLicensePlate) {
                         safeSetText('Text25', selectConfig.currentLicensePlate);
-                        console.log(`Set current license plate: ${selectConfig.currentLicensePlate}`);
+                        // console.log(`Set current license plate: ${selectConfig.currentLicensePlate}`);
                     }
 
                     if (selectConfig.fullVehicleId) {
                         safeSetText('Text26', selectConfig.fullVehicleId);
-                        console.log(`Set full vehicle ID: ${selectConfig.fullVehicleId}`);
+                        // console.log(`Set full vehicle ID: ${selectConfig.fullVehicleId}`);
                     }
                 } else if (selectConfig.plateType === 'Personalized') {
                     safeSetCheckbox('Check Box27', true);
-                    console.log('Selected Personalized plate type');
+                    // console.log('Selected Personalized plate type');
 
 
                     if (selectConfig.personalized) {
 
                         if (selectConfig.personalized.plateNotCentered) {
                             safeSetCheckbox('Check Box28', true);
-                            console.log('Checked plate not centered');
+                            // console.log('Checked plate not centered');
                         }
 
 
@@ -3681,13 +3696,13 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
                             for (let i = 0; i < Math.min(firstChoice.length, textFields.length); i++) {
                                 safeSetText(textFields[i], firstChoice.charAt(i));
                             }
-                            console.log(`Set first choice: ${firstChoice}`);
+                            // console.log(`Set first choice: ${firstChoice}`);
                         }
 
 
                         if (selectConfig.personalized.firstChoiceMeaning) {
                             safeSetText('Text37', selectConfig.personalized.firstChoiceMeaning);
-                            console.log(`Set first choice meaning: ${selectConfig.personalized.firstChoiceMeaning}`);
+                            // console.log(`Set first choice meaning: ${selectConfig.personalized.firstChoiceMeaning}`);
                         }
 
 
@@ -3698,13 +3713,13 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
                             for (let i = 0; i < Math.min(secondChoice.length, textFields.length); i++) {
                                 safeSetText(textFields[i], secondChoice.charAt(i));
                             }
-                            console.log(`Set second choice: ${secondChoice}`);
+                            // console.log(`Set second choice: ${secondChoice}`);
                         }
 
 
                         if (selectConfig.personalized.secondChoiceMeaning) {
                             safeSetText('Text46', selectConfig.personalized.secondChoiceMeaning);
-                            console.log(`Set second choice meaning: ${selectConfig.personalized.secondChoiceMeaning}`);
+                            // console.log(`Set second choice meaning: ${selectConfig.personalized.secondChoiceMeaning}`);
                         }
 
 
@@ -3715,13 +3730,13 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
                             for (let i = 0; i < Math.min(thirdChoice.length, textFields.length); i++) {
                                 safeSetText(textFields[i], thirdChoice.charAt(i));
                             }
-                            console.log(`Set third choice: ${thirdChoice}`);
+                            // console.log(`Set third choice: ${thirdChoice}`);
                         }
 
 
                         if (selectConfig.personalized.thirdChoiceMeaning) {
                             safeSetText('Text55', selectConfig.personalized.thirdChoiceMeaning);
-                            console.log(`Set third choice meaning: ${selectConfig.personalized.thirdChoiceMeaning}`);
+                            // console.log(`Set third choice meaning: ${selectConfig.personalized.thirdChoiceMeaning}`);
                         }
 
 
@@ -3733,24 +3748,24 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
             if (selectConfig.pickupLocation) {
                 if (selectConfig.pickupLocation === 'DMV Office') {
                     safeSetCheckbox('Check Box18', true);
-                    console.log('Selected DMV Office pickup location');
+                    // console.log('Selected DMV Office pickup location');
                 } else if (selectConfig.pickupLocation === 'Auto Club') {
                     safeSetCheckbox('Check Box24', true);
-                    console.log('Selected Auto Club pickup location');
+                    // console.log('Selected Auto Club pickup location');
                 }
             }
 
 
             if (selectConfig.locationCity) {
                 safeSetText('Text27', selectConfig.locationCity);
-                console.log(`Set location city: ${selectConfig.locationCity}`);
+                // console.log(`Set location city: ${selectConfig.locationCity}`);
             }
         }
 
 
         if (formData.platePurchaserOwner) {
             const purchaserOwner = formData.platePurchaserOwner;
-            console.log('Processing plate purchaser/owner information:', purchaserOwner);
+            // console.log('Processing plate purchaser/owner information:', purchaserOwner);
 
 
             if (purchaserOwner.purchaser) {
@@ -3775,27 +3790,27 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
                         const restOfPhone = cleanedPhone.substring(3);
                         safeSetText('Text76', restOfPhone);
 
-                        console.log(`Set phone number: (${areaCode}) ${restOfPhone}`);
+                        // console.log(`Set phone number: (${areaCode}) ${restOfPhone}`);
                     }
                 } else {
 
                     safeSetText('Text75', '');
                     safeSetText('Text76', '');
-                    console.log('No phone number provided for purchaser');
+                    // console.log('No phone number provided for purchaser');
                 }
 
-                console.log(`Set purchaser information:
-            Name: ${purchaserOwner.purchaser.fullName}
-            Address: ${purchaserOwner.purchaser.streetAddress}
-            City: ${purchaserOwner.purchaser.city}
-            State: ${purchaserOwner.purchaser.state}
-            ZIP: ${purchaserOwner.purchaser.zipCode}`);
+                // console.log(`Set purchaser information:
+                // Name: ${purchaserOwner.purchaser.fullName}
+                // Address: ${purchaserOwner.purchaser.streetAddress}
+                // City: ${purchaserOwner.purchaser.city}
+                // State: ${purchaserOwner.purchaser.state}
+                // ZIP: ${purchaserOwner.purchaser.zipCode}`);
             }
 
 
             if (purchaserOwner.sameAsOwner) {
                 safeSetCheckbox('Check Box79', true);
-                console.log('Checked "Same as Owner" box');
+                // console.log('Checked "Same as Owner" box');
             }
 
 
@@ -3806,12 +3821,12 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
                 safeSetText('Text72', purchaserOwner.owner.state || '');
                 safeSetText('Text73', purchaserOwner.owner.zipCode || '');
 
-                console.log(`Set owner information:
-            Name: ${purchaserOwner.owner.fullName}
-            Address: ${purchaserOwner.owner.streetAddress}
-            City: ${purchaserOwner.owner.city}
-            State: ${purchaserOwner.owner.state}
-            ZIP: ${purchaserOwner.owner.zipCode}`);
+                // console.log(`Set owner information:
+                // Name: ${purchaserOwner.owner.fullName}
+                // Address: ${purchaserOwner.owner.streetAddress}
+                // City: ${purchaserOwner.owner.city}
+                // State: ${purchaserOwner.owner.state}
+                // ZIP: ${purchaserOwner.owner.zipCode}`);
             }
         }
 
@@ -3833,9 +3848,9 @@ async function modifyREG17Pdf(fileBytes, formData, transactionType) {
     }
 }
 
-
-
 async function modifyREG195Pdf(fileBytes, formData) {
+    console.log("modifyREG195Pdf");
+    
     try {
         const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
 
@@ -3853,14 +3868,14 @@ async function modifyREG195Pdf(fileBytes, formData) {
 
         try {
             const fieldNames = form.getFields().map(f => f.getName());
-            console.log('Available REG195 PDF Fields:', JSON.stringify(fieldNames, null, 2));
+            // console.log('Available REG195 PDF Fields:', JSON.stringify(fieldNames, null, 2));
         } catch (error) {
             console.error('Error getting field names:', error);
         }
 
-        console.log('===== COMPLETE FORM DATA =====');
-        console.log(JSON.stringify(formData, null, 2));
-        console.log('=============================');
+        // console.log('===== COMPLETE FORM DATA =====');
+        // console.log(JSON.stringify(formData, null, 2));
+        // console.log('=============================');
 
         const getNestedProperty = (obj, path) => {
             if (!obj || !path) return '';
@@ -3902,7 +3917,7 @@ async function modifyREG195Pdf(fileBytes, formData) {
                         : value;
 
                     field.setText(finalValue);
-                    console.log(`Successfully filled field: ${fieldName}`);
+                    // console.log(`Successfully filled field: ${fieldName}`);
                 } else {
                     console.warn(`Field not found: ${fieldName}`);
                 }
@@ -3920,7 +3935,7 @@ async function modifyREG195Pdf(fileBytes, formData) {
                     } else {
                         field.uncheck();
                     }
-                    console.log(`Successfully set checkbox: ${fieldName} to ${checked}`);
+                    // console.log(`Successfully set checkbox: ${fieldName} to ${checked}`);
                 } else {
                     console.warn(`Checkbox not found: ${fieldName}`);
                 }
@@ -3977,7 +3992,7 @@ async function modifyREG195Pdf(fileBytes, formData) {
                     }
                 }
 
-                console.log(`Drawing X on checkbox ${fieldName} on page ${pageIndex} with x-offset: ${xOffset}`);
+                // console.log(`Drawing X on checkbox ${fieldName} on page ${pageIndex} with x-offset: ${xOffset}`);
 
 
                 const pageCount = pdfDoc.getPageCount();
@@ -4004,7 +4019,7 @@ async function modifyREG195Pdf(fileBytes, formData) {
                     color: rgb(0, 0, 0),
                 });
 
-                console.log(`Successfully drew X on checkbox: ${fieldName} on page ${pageIndex}`);
+                // console.log(`Successfully drew X on checkbox: ${fieldName} on page ${pageIndex}`);
             } catch (error) {
                 console.error(`Error drawing X on checkbox ${fieldName}:`, error);
             }
@@ -4018,7 +4033,7 @@ async function modifyREG195Pdf(fileBytes, formData) {
                 const formattedDate = `${String(today.getMonth() + 1).padStart(2, '0')}/${String(today.getDate()).padStart(2, '0')}/${today.getFullYear()}`;
 
                 safeSetText("Executed-Date", formattedDate);
-                console.log(`Successfully filled Executed-Date field with current date: ${formattedDate}`);
+                // console.log(`Successfully filled Executed-Date field with current date: ${formattedDate}`);
             } catch (error) {
                 console.error('Error setting current date:', error);
             }
@@ -4042,7 +4057,7 @@ async function modifyREG195Pdf(fileBytes, formData) {
                     }
 
                     nameField.setText(fullName);
-                    console.log(`Successfully filled seller name field: ${fullName}`);
+                    // console.log(`Successfully filled seller name field: ${fullName}`);
                 }
 
 
@@ -4055,7 +4070,7 @@ async function modifyREG195Pdf(fileBytes, formData) {
                         const field = form.getTextField(fieldName);
                         if (field) {
                             field.setText(dlChars[i]);
-                            console.log(`Successfully filled DL digit ${i}: ${dlChars[i]}`);
+                            // console.log(`Successfully filled DL digit ${i}: ${dlChars[i]}`);
                         }
                     }
                 }
@@ -4083,7 +4098,7 @@ async function modifyREG195Pdf(fileBytes, formData) {
                 try {
                     const dobString = formData.sellerInfo?.sellers?.[0]?.dob || '';
                     if (dobString) {
-                        console.log(`Processing seller DOB: ${dobString}`);
+                        // console.log(`Processing seller DOB: ${dobString}`);
 
                         const dobParts = dobString.split('/');
 
@@ -4103,7 +4118,7 @@ async function modifyREG195Pdf(fileBytes, formData) {
                             safeSetText("DOB-Yr.1.1", year.charAt(0));
                             safeSetText("DOB-Yr.1.2", year.charAt(1));
 
-                            console.log(`Set DOB fields - Month: ${month}, Day: ${day}, Year: ${year}`);
+                            // console.log(`Set DOB fields - Month: ${month}, Day: ${day}, Year: ${year}`);
                         } else {
                             console.warn(`Invalid DOB format: ${dobString}. Expected MM/DD/YYYY.`);
                         }
@@ -4123,7 +4138,7 @@ async function modifyREG195Pdf(fileBytes, formData) {
 
                             safeSetText("Area Code", areaCode);
                             safeSetText("Daytime phone no", mainNumber);
-                            console.log(`Set phone fields - Area code: ${areaCode}, Main: ${mainNumber}`);
+                            // console.log(`Set phone fields - Area code: ${areaCode}, Main: ${mainNumber}`);
                         }
                     }
                 } catch (error) {
@@ -4177,7 +4192,7 @@ async function modifyREG195Pdf(fileBytes, formData) {
 
                             }
 
-                            console.log('Drew X on checkbox to select YES option');
+                            // console.log('Drew X on checkbox to select YES option');
 
 
                             if (parkingInfo.licensePlateNumber) {
@@ -4194,7 +4209,7 @@ async function modifyREG195Pdf(fileBytes, formData) {
 
                             }
 
-                            console.log('Set checkbox to TRUE to select NO option');
+                            // console.log('Set checkbox to TRUE to select NO option');
                         }
                     } catch (error) {
                         console.error('Error handling Yes/No selection:', error);
@@ -4259,6 +4274,7 @@ async function modifyREG195Pdf(fileBytes, formData) {
 }
 
 async function modifyDMVReg166Pdf(fileBytes, formData) {
+     console.log('modifyDMVReg166Pdf');
     try {
         const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
 
@@ -4278,15 +4294,15 @@ async function modifyDMVReg166Pdf(fileBytes, formData) {
 
         try {
             const fieldNames = form.getFields().map(f => f.getName());
-            console.log('Available DMVReg166 PDF Fields:', JSON.stringify(fieldNames, null, 2));
+            // console.log('Available DMVReg166 PDF Fields:', JSON.stringify(fieldNames, null, 2));
         } catch (error) {
             console.error('Error getting field names:', error);
 
         }
 
-        console.log('===== COMPLETE FORM DATA =====');
-        console.log(JSON.stringify(formData, null, 2));
-        console.log('=============================');
+        // console.log('===== COMPLETE FORM DATA =====');
+        // console.log(JSON.stringify(formData, null, 2));
+        // console.log('=============================');
 
 
         const fieldMapping = {
@@ -4333,7 +4349,7 @@ async function modifyDMVReg166Pdf(fileBytes, formData) {
                         : value;
 
                     field.setText(finalValue);
-                    console.log(`Successfully filled field: ${fieldName}`);
+                    // console.log(`Successfully filled field: ${fieldName}`);
                 } else {
                     console.warn(`Field not found: ${fieldName}`);
                 }
@@ -4371,7 +4387,7 @@ async function modifyDMVReg166Pdf(fileBytes, formData) {
         for (const [pdfField, formField] of Object.entries(fieldMapping)) {
             try {
                 const value = getNestedProperty(formData, formField) || '';
-                console.log(`Setting field ${pdfField} to value: "${value}" from path: ${formField}`);
+                // console.log(`Setting field ${pdfField} to value: "${value}" from path: ${formField}`);
                 safeSetText(pdfField, String(value));
             } catch (error) {
                 console.error(`Error applying mapping for field ${pdfField}:`, error);
@@ -4392,7 +4408,7 @@ async function modifyDMVReg166Pdf(fileBytes, formData) {
 
                     safeSetText("area code", areaCode);
                     safeSetText("Daytime Phone No", mainNumber);
-                    console.log(`Set phone fields - Area code: ${areaCode}, Main: ${mainNumber}`);
+                    // console.log(`Set phone fields - Area code: ${areaCode}, Main: ${mainNumber}`);
                 }
             }
         } catch (error) {
@@ -4404,7 +4420,7 @@ async function modifyDMVReg166Pdf(fileBytes, formData) {
 
         const currentDate = new Date();
         const formattedDate = `${String(currentDate.getMonth() + 1).padStart(2, '0')}/${String(currentDate.getDate()).padStart(2, '0')}/${currentDate.getFullYear()}`;
-        console.log('Using current date:', formattedDate);
+        // console.log('Using current date:', formattedDate);
 
         try {
             safeSetText("Date", formattedDate);
@@ -4439,41 +4455,40 @@ async function modifyDMVReg166Pdf(fileBytes, formData) {
     }
 }
 
-
-
-
 async function modifyReg256Pdf(fileBytes, formData, transactionType) {
+    console.log("modifyReg256Pdf")
+
     const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
 
     const form = pdfDoc.getForm();
     const fieldNames = form.getFields().map(f => f.getName());
-    console.log('Available Reg256 PDF Fields:', JSON.stringify(fieldNames, null, 2));
+    // console.log('Available Reg256 PDF Fields:', JSON.stringify(fieldNames, null, 2));
 
-    console.log('===== COMPLETE FORM DATA =====');
-    console.log(JSON.stringify(formData, null, 2));
-    console.log('=============================');
-    console.log('Transaction type passed directly:', transactionType);
-    console.log('Raw formData object type property:', formData.type);
+    // console.log('===== COMPLETE FORM DATA =====');
+    // console.log(JSON.stringify(formData, null, 2));
+    // console.log('=============================');
+    // console.log('Transaction type passed directly:', transactionType);
+    // console.log('Raw formData object type property:', formData.type);
 
     if (!transactionType) {
         if (formData.transactionType) {
             transactionType = formData.transactionType;
-            console.log(`Found transaction type in formData.transactionType: "${transactionType}"`);
+            // console.log(`Found transaction type in formData.transactionType: "${transactionType}"`);
         } else if (formData.type) {
             transactionType = formData.type;
-            console.log(`Found transaction type in formData.type: "${transactionType}"`);
+            // console.log(`Found transaction type in formData.type: "${transactionType}"`);
         } else if (formData.formData && formData.formData.transactionType) {
             transactionType = formData.formData.transactionType;
-            console.log(`Found transaction type in formData.formData.transactionType: "${transactionType}"`);
+            // console.log(`Found transaction type in formData.formData.transactionType: "${transactionType}"`);
         } else if (formData.formData && formData.formData.type) {
             transactionType = formData.formData.type;
-            console.log(`Found transaction type in formData.formData.type: "${transactionType}"`);
+            // console.log(`Found transaction type in formData.formData.type: "${transactionType}"`);
         } else {
             transactionType = "Regular Transfer";
-            console.log(`No transaction type found anywhere, using default: "Regular Transfer"`);
+            // console.log(`No transaction type found anywhere, using default: "Regular Transfer"`);
         }
     } else {
-        console.log(`Using provided transaction type: "${transactionType}"`);
+        // console.log(`Using provided transaction type: "${transactionType}"`);
     }
 
     const isRestoringPNOTransfer = transactionType === "Restoring PNO Transfer";
@@ -4481,7 +4496,7 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
     const isFamilyTransfer = formData.vehicleTransactionDetails?.isFamilyTransfer === true;
     const isSmogExempt = formData.vehicleTransactionDetails?.isSmogExempt === true;
 
-    console.log(`Transaction type: "${transactionType}", isRestoringPNOTransfer: ${isRestoringPNOTransfer}, isGift: ${isGift}, isFamilyTransfer: ${isFamilyTransfer}, isSmogExempt: ${isSmogExempt}`);
+    // console.log(`Transaction type: "${transactionType}", isRestoringPNOTransfer: ${isRestoringPNOTransfer}, isGift: ${isGift}, isFamilyTransfer: ${isFamilyTransfer}, isSmogExempt: ${isSmogExempt}`);
 
     const fieldMapping = {
         vehicleLicensePlate: 'License Plate/CF Number',
@@ -4552,7 +4567,7 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
                     : value;
 
                 field.setText(finalValue);
-                console.log(`Successfully filled field: ${fieldName}`);
+                // console.log(`Successfully filled field: ${fieldName}`);
             } else {
                 console.warn(`Field not found: ${fieldName}`);
             }
@@ -4566,7 +4581,7 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
             const checkbox = form.getCheckBox(fieldName);
             if (checkbox) {
                 value ? checkbox.check() : checkbox.uncheck();
-                console.log(`Successfully ${value ? 'checked' : 'unchecked'} checkbox: ${fieldName}`);
+                // console.log(`Successfully ${value ? 'checked' : 'unchecked'} checkbox: ${fieldName}`);
             } else {
                 console.warn(`Checkbox not found: ${fieldName}`);
             }
@@ -4611,7 +4626,7 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
         try {
             if (formData.nameStatement) {
                 const nameStatement = formData.nameStatement;
-                console.log('Processing name statement data:', JSON.stringify(nameStatement, null, 2));
+                // console.log('Processing name statement data:', JSON.stringify(nameStatement, null, 2));
 
                 if (nameStatement.isSamePerson) {
                     safeSetCheckbox(fieldMapping.isSamePersonCheckbox, true);
@@ -4652,32 +4667,32 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
         try {
             if (formData.vehicleBodyChange) {
                 const bodyChangeData = formData.vehicleBodyChange;
-                console.log('Processing vehicle body change data:', JSON.stringify(bodyChangeData, null, 2));
+                // console.log('Processing vehicle body change data:', JSON.stringify(bodyChangeData, null, 2));
 
 
                 if (bodyChangeData.marketValue) {
                     safeSetText(fieldMapping.marketValueField, bodyChangeData.marketValue || '');
-                    console.log(`Set market value to: ${bodyChangeData.marketValue}`);
+                    // console.log(`Set market value to: ${bodyChangeData.marketValue}`);
                 }
 
 
                 if (bodyChangeData.changeCost) {
                     safeSetText(fieldMapping.changeCostField, bodyChangeData.changeCost || '');
-                    console.log(`Set change cost to: ${bodyChangeData.changeCost}`);
+                    // console.log(`Set change cost to: ${bodyChangeData.changeCost}`);
                 }
 
 
                 if (bodyChangeData.changeDate) {
                     const formattedDate = formatDate(bodyChangeData.changeDate);
                     safeSetText(fieldMapping.changeDateField, formattedDate || '');
-                    console.log(`Set change date to: ${formattedDate}`);
+                    // console.log(`Set change date to: ${formattedDate}`);
                 }
 
 
                 if (bodyChangeData.unladenWeightChanged) {
                     safeSetCheckbox(fieldMapping.unladenWeightChangedCheckbox, true);
                     safeSetText(fieldMapping.unladenWeightReasonField, bodyChangeData.unladenWeightReason || '');
-                    console.log(`Set unladen weight change: ${bodyChangeData.unladenWeightReason}`);
+                    // console.log(`Set unladen weight change: ${bodyChangeData.unladenWeightReason}`);
                 }
 
 
@@ -4685,7 +4700,7 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
                     safeSetCheckbox(fieldMapping.motiveChangedCheckbox, true);
                     safeSetText(fieldMapping.motiveFromField, bodyChangeData.motiveFrom || '');
                     safeSetText(fieldMapping.motiveToField, bodyChangeData.motiveTo || '');
-                    console.log(`Set motive power change from "${bodyChangeData.motiveFrom}" to "${bodyChangeData.motiveTo}"`);
+                    // console.log(`Set motive power change from "${bodyChangeData.motiveFrom}" to "${bodyChangeData.motiveTo}"`);
                 }
 
 
@@ -4693,7 +4708,7 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
                     safeSetCheckbox(fieldMapping.bodyTypeChangedCheckbox, true);
                     safeSetText(fieldMapping.bodyTypeFromField, bodyChangeData.bodyTypeFrom || '');
                     safeSetText(fieldMapping.bodyTypeToField, bodyChangeData.bodyTypeTo || '');
-                    console.log(`Set body type change from "${bodyChangeData.bodyTypeFrom}" to "${bodyChangeData.bodyTypeTo}"`);
+                    // console.log(`Set body type change from "${bodyChangeData.bodyTypeFrom}" to "${bodyChangeData.bodyTypeTo}"`);
                 }
 
 
@@ -4701,7 +4716,7 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
                     safeSetCheckbox(fieldMapping.axlesChangedCheckbox, true);
                     safeSetText(fieldMapping.axlesFromField, bodyChangeData.axlesFrom || '');
                     safeSetText(fieldMapping.axlesToField, bodyChangeData.axlesTo || '');
-                    console.log(`Set axles change from "${bodyChangeData.axlesFrom}" to "${bodyChangeData.axlesTo}"`);
+                    // console.log(`Set axles change from "${bodyChangeData.axlesFrom}" to "${bodyChangeData.axlesTo}"`);
                 }
             }
         } catch (error) {
@@ -4731,14 +4746,14 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
             let phoneNumber = '';
 
             if (newRegOwner) {
-                console.log('Using owner data for personal information');
+                // console.log('Using owner data for personal information');
                 lastName = newRegOwner.lastName || '';
                 firstName = newRegOwner.firstName || '';
                 middleName = newRegOwner.middleName || '';
                 phoneNumber = newRegOwner.phoneNumber || '';
             }
             else if (seller) {
-                console.log('Falling back to seller data for personal information');
+                // console.log('Falling back to seller data for personal information');
                 lastName = seller.lastName || '';
                 firstName = seller.firstName || '';
                 middleName = seller.middleName || '';
@@ -4753,7 +4768,7 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
             safeSetText(fieldMapping.ownerPhoneAreaCode, areaCode);
             safeSetText(fieldMapping.ownerPhoneNumber, mainNumber);
 
-            console.log(`Set personal info - Name: ${firstName} ${middleName} ${lastName}, Phone: ${phoneNumber}`);
+            // console.log(`Set personal info - Name: ${firstName} ${middleName} ${lastName}, Phone: ${phoneNumber}`);
         } catch (error) {
             console.error('Error processing personal information:', error);
         }
@@ -4764,11 +4779,11 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
         if (isGift && newRegOwner.marketValue) {
 
             safeSetText(fieldMapping.currentMarketValue, newRegOwner.marketValue.toString());
-            console.log(`Gift transaction: Set current market value to: ${newRegOwner.marketValue}`);
+            // console.log(`Gift transaction: Set current market value to: ${newRegOwner.marketValue}`);
         } else if (!isGift && newRegOwner.purchasePrice) {
 
             safeSetText(fieldMapping.currentMarketValue, newRegOwner.purchasePrice.toString());
-            console.log(`Non-gift transaction: Set current market value to purchase price: ${newRegOwner.purchasePrice}`);
+            // console.log(`Non-gift transaction: Set current market value to purchase price: ${newRegOwner.purchasePrice}`);
         }
     }
 
@@ -4780,28 +4795,28 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
 
     if (isRestoringPNOTransfer) {
         const pnoStatement = "The vehicle was previously placed on Planned Non Operation (PNO) status I now intend to operate it on public roads and I am submitting payment for registration fees and for any late fees penalities.";
-        console.log('Setting PNO restoration Statement of Facts:', pnoStatement);
+        // console.log('Setting PNO restoration Statement of Facts:', pnoStatement);
         safeSetText(fieldMapping.statementOfFacts, pnoStatement);
     }
     else if (formData.statementOfFacts && formData.statementOfFacts.statement) {
-        console.log('Setting Statement of Facts:', formData.statementOfFacts.statement);
+        // console.log('Setting Statement of Facts:', formData.statementOfFacts.statement);
         safeSetText(fieldMapping.statementOfFacts, formData.statementOfFacts.statement);
     }
 
     if (isGift) {
         safeSetCheckbox(fieldMapping.giftBox, true);
         safeSetCheckbox(fieldMapping.familyTransferBox, false);
-        console.log('Gift box checked');
+        // console.log('Gift box checked');
     } else if (isFamilyTransfer) {
         safeSetCheckbox(fieldMapping.familyTransferBox, true);
         safeSetCheckbox(fieldMapping.giftBox, false);
-        console.log('Family transfer box checked');
+        // console.log('Family transfer box checked');
     }
 
     if (isSmogExempt && formData.smogExemption) {
         const smogData = formData.smogExemption;
         const exemptionReasons = smogData.exemptionReasons || {};
-        console.log('Processing smog exemption data:', JSON.stringify(exemptionReasons));
+        // console.log('Processing smog exemption data:', JSON.stringify(exemptionReasons));
 
         safeSetCheckbox(fieldMapping.biennialSmogBox, exemptionReasons.lastSmogCertification || false);
 
@@ -4846,7 +4861,7 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
     }).replace(/\//g, '/');
 
     safeSetText(fieldMapping.signatureDate, formattedCurrentDate);
-    console.log(`Set signature date to current date: ${formattedCurrentDate}`);
+    // console.log(`Set signature date to current date: ${formattedCurrentDate}`);
 
     form.updateFieldAppearances();
     pdfDoc.catalog.set(PDFName.of('NeedAppearances'), PDFBool.True);
@@ -4854,19 +4869,18 @@ async function modifyReg256Pdf(fileBytes, formData, transactionType) {
     return await pdfDoc.save();
 }
 
-
 async function modifyReg101Pdf(fileBytes, formData) {
-
+    console.log("modifyReg101Pdf")
     const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
 
     const form = pdfDoc.getForm();
 
     const fieldNames = form.getFields().map(f => f.getName());
-    console.log('Available Reg101 PDF Fields:', JSON.stringify(fieldNames, null, 2));
+    // console.log('Available Reg101 PDF Fields:', JSON.stringify(fieldNames, null, 2));
 
-    console.log('===== COMPLETE FORM DATA =====');
-    console.log(JSON.stringify(formData, null, 2));
-    console.log('=============================');
+    // console.log('===== COMPLETE FORM DATA =====');
+    // console.log(JSON.stringify(formData, null, 2));
+    // console.log('=============================');
 
     const fieldMapping = {
         licensePlate: "vehicle license plate or vessel CF Number",
@@ -4949,7 +4963,7 @@ async function modifyReg101Pdf(fileBytes, formData) {
                     : value;
 
                 field.setText(finalValue);
-                console.log(`Successfully filled field: ${fieldName}`);
+                // console.log(`Successfully filled field: ${fieldName}`);
             } else {
                 console.warn(`Field not found: ${fieldName}`);
             }
@@ -4967,7 +4981,7 @@ async function modifyReg101Pdf(fileBytes, formData) {
                 } else {
                     checkBox.uncheck();
                 }
-                console.log(`Successfully set checkbox: ${fieldName} to ${value}`);
+                // console.log(`Successfully set checkbox: ${fieldName} to ${value}`);
             } else {
                 console.warn(`Checkbox not found: ${fieldName}`);
             }
@@ -4981,13 +4995,13 @@ async function modifyReg101Pdf(fileBytes, formData) {
             const radioGroup = form.getRadioGroup(fieldName);
             if (radioGroup) {
                 const options = radioGroup.getOptions();
-                console.log(`Radio group options for ${fieldName}:`, options);
+                // console.log(`Radio group options for ${fieldName}:`, options);
 
                 const normalizedValue = value.toLowerCase();
 
                 if (options.includes(normalizedValue)) {
                     radioGroup.select(normalizedValue);
-                    console.log(`Successfully selected radio option ${normalizedValue} for ${fieldName}`);
+                    // console.log(`Successfully selected radio option ${normalizedValue} for ${fieldName}`);
                 } else {
                     console.warn(`Invalid option ${value} for radio group ${fieldName}. Available options: ${options.join(', ')}`);
                 }
@@ -5045,7 +5059,7 @@ async function modifyReg101Pdf(fileBytes, formData) {
     let seller1SaleDate = '';
     if (formData.sellerInfo && formData.sellerInfo.sellers && formData.sellerInfo.sellers.length > 0) {
         seller1SaleDate = formData.sellerInfo.sellers[0].saleDate || '';
-        console.log("Found seller1's sale date:", seller1SaleDate);
+        // console.log("Found seller1's sale date:", seller1SaleDate);
     }
 
 
@@ -5055,12 +5069,12 @@ async function modifyReg101Pdf(fileBytes, formData) {
     let dataToUse = formData;
     if (formData.isMultipleTransfer && formData.transfersData && formData.transfersData.length > 0) {
         dataToUse = formData.transfersData[0];
-        console.log('Using data from first transfer in multiple transfer set');
+        // console.log('Using data from first transfer in multiple transfer set');
 
 
         if (!seller1SaleDate && dataToUse.sellerInfo && dataToUse.sellerInfo.sellers && dataToUse.sellerInfo.sellers.length > 0) {
             seller1SaleDate = dataToUse.sellerInfo.sellers[0].saleDate || '';
-            console.log("Found seller1's sale date from transfer data:", seller1SaleDate);
+            // console.log("Found seller1's sale date from transfer data:", seller1SaleDate);
         }
     }
 
@@ -5097,11 +5111,11 @@ async function modifyReg101Pdf(fileBytes, formData) {
 
         if (seller1SaleDate) {
             safeSetText(fieldMapping.purchaseDate, formattedSeller1SaleDate);
-            console.log(`Using seller1's sale date for purchase date: ${formattedSeller1SaleDate}`);
+            // console.log(`Using seller1's sale date for purchase date: ${formattedSeller1SaleDate}`);
         } else if (owner1.purchaseDate) {
 
             safeSetText(fieldMapping.purchaseDate, formatDate(owner1.purchaseDate));
-            console.log(`Using owner1's purchase date as fallback: ${formatDate(owner1.purchaseDate)}`);
+            // console.log(`Using owner1's purchase date as fallback: ${formatDate(owner1.purchaseDate)}`);
         }
 
         if (owner1.purchaseValue) {
@@ -5179,45 +5193,48 @@ async function modifyReg101Pdf(fileBytes, formData) {
 
     return await pdfDoc.save();
 }
+
 async function modifyReg156Pdf(fileBytes, formData, transactionType) {
+    console.log("modifyReg156Pdf")
+
     const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
 
     const form = pdfDoc.getForm();
 
     const fieldNames = form.getFields().map(f => f.getName());
-    console.log('Available Reg156 PDF Fields:', JSON.stringify(fieldNames, null, 2));
+    // console.log('Available Reg156 PDF Fields:', JSON.stringify(fieldNames, null, 2));
 
-    console.log('===== COMPLETE FORM DATA =====');
-    console.log(JSON.stringify(formData, null, 2));
-    console.log('=============================');
+    // console.log('===== COMPLETE FORM DATA =====');
+    // console.log(JSON.stringify(formData, null, 2));
+    // console.log('=============================');
 
-    console.log('Transaction type passed directly:', transactionType);
-    console.log('Raw formData object type property:', formData.type);
+    // console.log('Transaction type passed directly:', transactionType);
+    // console.log('Raw formData object type property:', formData.type);
 
     if (!transactionType) {
         if (formData.transactionType) {
             transactionType = formData.transactionType;
-            console.log(`Found transaction type in formData.transactionType: "${transactionType}"`);
+            // console.log(`Found transaction type in formData.transactionType: "${transactionType}"`);
         } else if (formData.type) {
             transactionType = formData.type;
-            console.log(`Found transaction type in formData.type: "${transactionType}"`);
+            // console.log(`Found transaction type in formData.type: "${transactionType}"`);
         } else if (formData.formData && formData.formData.transactionType) {
             transactionType = formData.formData.transactionType;
-            console.log(`Found transaction type in formData.formData.transactionType: "${transactionType}"`);
+            // console.log(`Found transaction type in formData.formData.transactionType: "${transactionType}"`);
         } else if (formData.formData && formData.formData.type) {
             transactionType = formData.formData.type;
-            console.log(`Found transaction type in formData.formData.type: "${transactionType}"`);
+            // console.log(`Found transaction type in formData.formData.type: "${transactionType}"`);
         } else {
             if (formData.pnoDetails && formData.pnoDetails.requestPnoCard) {
                 transactionType = "Filing PNO Transfer";
-                console.log(`Found PNO details, setting transaction type to: "Filing PNO Transfer"`);
+                // console.log(`Found PNO details, setting transaction type to: "Filing PNO Transfer"`);
             } else {
                 transactionType = "Duplicate Registration Transfer";
-                console.log(`No transaction type found anywhere, using default: "Duplicate Registration Transfer"`);
+                // console.log(`No transaction type found anywhere, using default: "Duplicate Registration Transfer"`);
             }
         }
     } else {
-        console.log(`Using provided transaction type: "${transactionType}"`);
+        // console.log(`Using provided transaction type: "${transactionType}"`);
     }
 
     const isDuplicateStickers = transactionType === "Duplicate Stickers";
@@ -5226,7 +5243,7 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
     const isDuplicateRegistrationTransfer = transactionType === "Duplicate Registration Transfer";
     const isFilingPNOTransfer = transactionType === "Filing PNO Transfer";
 
-    console.log(`Transaction type: "${transactionType}", isDuplicateStickers: ${isDuplicateStickers}, isDuplicatePlatesAndStickers: ${isDuplicatePlatesAndStickers}, isDuplicateTitleTransfer: ${isDuplicateTitleTransfer}, isDuplicateRegistrationTransfer: ${isDuplicateRegistrationTransfer}, isFilingPNOTransfer: ${isFilingPNOTransfer}`);
+    // console.log(`Transaction type: "${transactionType}", isDuplicateStickers: ${isDuplicateStickers}, isDuplicatePlatesAndStickers: ${isDuplicatePlatesAndStickers}, isDuplicateTitleTransfer: ${isDuplicateTitleTransfer}, isDuplicateRegistrationTransfer: ${isDuplicateRegistrationTransfer}, isFilingPNOTransfer: ${isFilingPNOTransfer}`);
 
     const fieldMapping = {
         "Vehicle license plate": "vehicleInformation.licensePlate",
@@ -5307,7 +5324,7 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
                     : value;
 
                 field.setText(finalValue);
-                console.log(`Successfully filled field: ${fieldName}`);
+                // console.log(`Successfully filled field: ${fieldName}`);
             } else {
                 console.warn(`Field not found: ${fieldName}`);
             }
@@ -5321,7 +5338,7 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
             const checkbox = form.getCheckBox(fieldName);
             if (checkbox) {
                 value ? checkbox.check() : checkbox.uncheck();
-                console.log(`Successfully ${value ? 'checked' : 'unchecked'} checkbox: ${fieldName}`);
+                // console.log(`Successfully ${value ? 'checked' : 'unchecked'} checkbox: ${fieldName}`);
             } else {
                 console.warn(`Checkbox not found: ${fieldName}`);
             }
@@ -5399,13 +5416,13 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
         return current;
     };
 
-    console.log("License Plate Data:", formData.licensePlate);
+    // console.log("License Plate Data:", formData.licensePlate);
 
     let dataToUse = formData;
 
     if (formData.isMultipleTransfer && formData.transfersData && formData.transfersData.length > 0) {
         dataToUse = formData.transfersData[0];
-        console.log('Using data from first transfer in multiple transfer set');
+        // console.log('Using data from first transfer in multiple transfer set');
     }
     const sellerInfo = dataToUse.sellerInfo || { sellers: [] };
 
@@ -5416,7 +5433,7 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
     let seller1SaleDate = '';
     if (seller1 && seller1.saleDate) {
         seller1SaleDate = seller1.saleDate;
-        console.log(`Found seller1's sale date: ${seller1SaleDate}`);
+        // console.log(`Found seller1's sale date: ${seller1SaleDate}`);
     }
 
     const formattedSellerSaleDate = formatDate(seller1SaleDate);
@@ -5479,7 +5496,7 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
                         const areaCode = cleanPhone.substring(0, 3);
                         const number = cleanPhone.substring(3);
 
-                        console.log(`Parsed phone number: (${areaCode}) ${number}`);
+                        // console.log(`Parsed phone number: (${areaCode}) ${number}`);
                         safeSetText("area code", areaCode);
                         safeSetText("telephone number", number);
                     }
@@ -5513,7 +5530,7 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
 
 
     if (isFilingPNOTransfer) {
-        console.log('Processing Filing PNO Transfer transaction type');
+        // console.log('Processing Filing PNO Transfer transaction type');
 
         safeSetCheckbox("PNO", true);
 
@@ -5532,7 +5549,7 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
         }
     }
     else if (isDuplicateStickers) {
-        console.log('Processing Duplicate Stickers transaction type');
+        // console.log('Processing Duplicate Stickers transaction type');
 
         safeSetCheckbox("License plates", false);
 
@@ -5544,7 +5561,7 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
             ? dataToUse.duplicateStickers.year
             : (dataToUse.activeSubOptions && dataToUse.activeSubOptions["Duplicate Stickers-Year"] === true);
 
-        console.log(`Duplicate Stickers options from context - Month: ${monthChecked}, Year: ${yearChecked}`);
+        // console.log(`Duplicate Stickers options from context - Month: ${monthChecked}, Year: ${yearChecked}`);
 
         safeSetCheckbox("license month", monthChecked);
         safeSetCheckbox("license year", yearChecked);
@@ -5558,7 +5575,7 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
         }
     }
     else if (isDuplicatePlatesAndStickers) {
-        console.log('Processing Duplicate Plates & Stickers transaction type - ALWAYS checking all three options');
+        // console.log('Processing Duplicate Plates & Stickers transaction type - ALWAYS checking all three options');
 
         safeSetCheckbox("License plates", true);
         safeSetCheckbox("license month", true);
@@ -5573,7 +5590,7 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
         }
     }
     else if (isDuplicateTitleTransfer) {
-        console.log('Processing Duplicate Title Transfer transaction type');
+        // console.log('Processing Duplicate Title Transfer transaction type');
 
         safeSetCheckbox("License plates", false);
         safeSetCheckbox("license month", false);
@@ -5584,7 +5601,7 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
         safeSetText("Explanation", "Requesting a duplicate title");
     }
     else if (isDuplicateRegistrationTransfer) {
-        console.log('Processing Duplicate Registration Transfer transaction type');
+        // console.log('Processing Duplicate Registration Transfer transaction type');
 
         safeSetCheckbox("License plates", false);
         safeSetCheckbox("license month", false);
@@ -5595,7 +5612,7 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
         safeSetText("Explanation", "Requesting a duplicate registration card");
     }
     else {
-        console.log('Processing other transaction type');
+        // console.log('Processing other transaction type');
 
         safeSetCheckbox("License plates", true);
         safeSetCheckbox("license month", true);
@@ -5637,11 +5654,11 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
 
                 if (pdfField === "Two plates") {
                     const value = getNestedProperty(dataToUse, formField) || false;
-                    console.log(`Setting "${pdfField}" checkbox to: ${value}`, {
-                        path: formField,
-                        rawValue: getNestedProperty(dataToUse, formField),
-                        finalValue: value
-                    });
+                    // console.log(`Setting "${pdfField}" checkbox to: ${value}`, {
+                    //     path: formField,
+                    //     rawValue: getNestedProperty(dataToUse, formField),
+                    //     finalValue: value
+                    // });
                     safeSetCheckbox(pdfField, value);
                     continue;
                 }
@@ -5656,13 +5673,13 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
 
 
     const currentDate = getCurrentDate();
-    console.log(`No seller sale date found, using current date: ${currentDate}`);
+    // console.log(`No seller sale date found, using current date: ${currentDate}`);
     safeSetText("date", currentDate);
 
 
     if (seller1) {
         const seller1Name = `${seller1.firstName || ''} ${seller1.middleName || ''} ${seller1.lastName || ''}`.trim();
-        console.log(`Setting certification name: ${seller1Name}`);
+        // console.log(`Setting certification name: ${seller1Name}`);
         safeSetText("certification", seller1Name);
     }
 
@@ -5672,9 +5689,9 @@ async function modifyReg156Pdf(fileBytes, formData, transactionType) {
     return await pdfDoc.save();
 }
 
-
-
 async function modifyDMV14Pdf(fileBytes, formData) {
+    console.log("modifyDMV14Pdf");
+    
     try {
         const pdfDoc = await PDFDocument.load(fileBytes, { ignoreEncryption: true });
 
@@ -5693,7 +5710,7 @@ async function modifyDMV14Pdf(fileBytes, formData) {
 
         try {
             const fieldNames = form.getFields().map(f => f.getName());
-            console.log('Available DMV14 PDF Fields:', JSON.stringify(fieldNames, null, 2));
+            // console.log('Available DMV14 PDF Fields:', JSON.stringify(fieldNames, null, 2));
         } catch (error) {
             console.error('Error getting field names:', error);
         }
@@ -5732,9 +5749,10 @@ async function modifyDMV14Pdf(fileBytes, formData) {
         return await emptyPdf.save();
     }
 }
+
 function mapLeasingCompany(form, formData) {
-    console.log('Starting mapLeasingCompany with formData:',
-        formData ? JSON.stringify(formData) : 'undefined');
+    // console.log('Starting mapLeasingCompany with formData:',
+    // formData ? JSON.stringify(formData) : 'undefined');
 
     try {
         let isLeased = false;
@@ -5744,7 +5762,7 @@ function mapLeasingCompany(form, formData) {
         if (formData && formData.checkboxOptions) {
             isLeased = formData.checkboxOptions.leasedVehicle;
             leasingCompanyName = formData.checkboxOptions.leasingCompanyName || '';
-            console.log(`Using data from checkboxOptions: isLeased=${isLeased}, company="${leasingCompanyName}"`);
+            // console.log(`Using data from checkboxOptions: isLeased=${isLeased}, company="${leasingCompanyName}"`);
         }
 
 
@@ -5752,7 +5770,7 @@ function mapLeasingCompany(form, formData) {
             if (formData.leasedVehicles.isLeased && formData.leasedVehicles.leasingCompanyName) {
                 isLeased = formData.leasedVehicles.isLeased;
                 leasingCompanyName = formData.leasedVehicles.leasingCompanyName || '';
-                console.log(`Using data from leasedVehicles: isLeased=${isLeased}, company="${leasingCompanyName}"`);
+                // console.log(`Using data from leasedVehicles: isLeased=${isLeased}, company="${leasingCompanyName}"`);
             }
         }
 
@@ -5760,16 +5778,16 @@ function mapLeasingCompany(form, formData) {
         if ((!leasingCompanyName || leasingCompanyName.trim() === '') && formData && formData.isLeased !== undefined) {
             isLeased = formData.isLeased;
             leasingCompanyName = formData.leasingCompanyName || '';
-            console.log(`Using data from direct LeasedVehiclesData: isLeased=${isLeased}, company="${leasingCompanyName}"`);
+            // console.log(`Using data from direct LeasedVehiclesData: isLeased=${isLeased}, company="${leasingCompanyName}"`);
         }
 
 
         if (!isLeased || !leasingCompanyName || leasingCompanyName.trim() === '') {
-            console.log('Vehicle is not leased or no company name provided, skipping');
+            // console.log('Vehicle is not leased or no company name provided, skipping');
             return;
         }
 
-        console.log('Final values: isLeased=', isLeased, 'companyName=', leasingCompanyName);
+        // console.log('Final values: isLeased=', isLeased, 'companyName=', leasingCompanyName);
 
 
         const leasingCoFields = [
@@ -5798,7 +5816,7 @@ function mapLeasingCompany(form, formData) {
         ];
 
         const companyName = leasingCompanyName.toUpperCase();
-        console.log(`Setting leasing company name: "${companyName}"`);
+        // console.log(`Setting leasing company name: "${companyName}"`);
 
 
         for (let i = 0; i < companyName.length && i < leasingCoFields.length; i++) {
@@ -5806,22 +5824,22 @@ function mapLeasingCompany(form, formData) {
                 const field = form.getTextField(leasingCoFields[i]);
                 if (field) {
                     field.setText(companyName.charAt(i));
-                    console.log(`Set field "${leasingCoFields[i]}" to "${companyName.charAt(i)}"`);
+                    // console.log(`Set field "${leasingCoFields[i]}" to "${companyName.charAt(i)}"`);
                 } else {
-                    console.log(`Field "${leasingCoFields[i]}" not found`);
+                    // console.log(`Field "${leasingCoFields[i]}" not found`);
                 }
             } catch (fieldError) {
                 console.warn(`Error setting field "${leasingCoFields[i]}":`, fieldError);
             }
         }
 
-        console.log(`Successfully set leasing company name: ${companyName}`);
+        // console.log(`Successfully set leasing company name: ${companyName}`);
     } catch (e) {
         console.warn('Error setting leasing company fields:', e);
 
 
         try {
-            console.log('Attempting fallback with single field');
+            // console.log('Attempting fallback with single field');
             const singleFieldNames = [
                 "Leasing Company",
                 "LEASING COMPANY",
@@ -5839,7 +5857,7 @@ function mapLeasingCompany(form, formData) {
             }
 
             if (!companyName || companyName.trim() === '') {
-                console.log('No company name available for fallback');
+                // console.log('No company name available for fallback');
                 return;
             }
 
@@ -5848,11 +5866,11 @@ function mapLeasingCompany(form, formData) {
                     const field = form.getTextField(fieldName);
                     if (field) {
                         field.setText(companyName);
-                        console.log(`Successfully set "${fieldName}" field to ${companyName}`);
+                        // console.log(`Successfully set "${fieldName}" field to ${companyName}`);
                         break;
                     }
                 } catch (e) {
-                    console.log(`Error trying field "${fieldName}":`, e);
+                    // console.log(`Error trying field "${fieldName}":`, e);
                 }
             }
         } catch (fallbackError) {
@@ -5860,12 +5878,13 @@ function mapLeasingCompany(form, formData) {
         }
     }
 
-    console.log('mapLeasingCompany function completed');
+    // console.log('mapLeasingCompany function completed');
 }
+
 function mapCitizenshipStatus(form, formData) {
 
-    console.log('Starting mapCitizenshipStatus with formData:',
-        formData ? JSON.stringify(formData) : 'undefined');
+    // console.log('Starting mapCitizenshipStatus with formData:',
+    // formData ? JSON.stringify(formData) : 'undefined');
 
     try {
 
@@ -5875,49 +5894,49 @@ function mapCitizenshipStatus(form, formData) {
         if (formData && formData.checkboxOptions && formData.checkboxOptions.notUsCitizen !== undefined) {
 
             notUsCitizen = formData.checkboxOptions.notUsCitizen;
-            console.log('Using notUsCitizen from checkboxOptions:', notUsCitizen);
+            // console.log('Using notUsCitizen from checkboxOptions:', notUsCitizen);
         }
         else if (formData && formData.isUsCitizen !== undefined) {
 
             notUsCitizen = !formData.isUsCitizen;
-            console.log('Using inverted isUsCitizen from CitizenshipData:', notUsCitizen);
+            // console.log('Using inverted isUsCitizen from CitizenshipData:', notUsCitizen);
         }
         else {
 
-            console.log('No citizenship data in function parameters, using default (US Citizen)');
+            // console.log('No citizenship data in function parameters, using default (US Citizen)');
 
 
             try {
                 const transactionJson = JSON.parse('{"checkboxOptions":{"leasedVehicle":false,"notUsCitizen":false,"doNotUseForVoterRegistration":false,"leasingCompanyName":""}}');
                 if (transactionJson && transactionJson.checkboxOptions && transactionJson.checkboxOptions.notUsCitizen !== undefined) {
                     notUsCitizen = transactionJson.checkboxOptions.notUsCitizen;
-                    console.log('Using notUsCitizen from transaction data:', notUsCitizen);
+                    // console.log('Using notUsCitizen from transaction data:', notUsCitizen);
                 } else {
-                    console.log('Using default notUsCitizen value (is US Citizen):', notUsCitizen);
+                    // console.log('Using default notUsCitizen value (is US Citizen):', notUsCitizen);
                 }
             } catch (e) {
-                console.log('Error parsing transaction data, using default (US Citizen)');
+                // console.log('Error parsing transaction data, using default (US Citizen)');
             }
         }
 
 
         if (!notUsCitizen) {
 
-            console.log('Setting "S8a Yes" (is US citizen)');
+            // console.log('Setting "S8a Yes" (is US citizen)');
             const citizenYesField = form.getCheckBox("S8a Yes");
             if (citizenYesField) {
                 citizenYesField.check();
-                console.log('Successfully checked "S8a Yes" checkbox');
+                // console.log('Successfully checked "S8a Yes" checkbox');
             } else {
                 console.warn('"S8a Yes" field not found');
             }
         } else {
 
-            console.log('Setting "S8a No" (not US citizen)');
+            // console.log('Setting "S8a No" (not US citizen)');
             const citizenNoField = form.getCheckBox("S8a No");
             if (citizenNoField) {
                 citizenNoField.check();
-                console.log('Successfully checked "S8a No" checkbox');
+                // console.log('Successfully checked "S8a No" checkbox');
             } else {
                 console.warn('"S8a No" field not found');
             }
@@ -5927,18 +5946,18 @@ function mapCitizenshipStatus(form, formData) {
 
 
         try {
-            console.log('Attempting to set default S8a Yes after error');
+            // console.log('Attempting to set default S8a Yes after error');
             const citizenYesField = form.getCheckBox("S8a Yes");
             if (citizenYesField) {
                 citizenYesField.check();
-                console.log('Successfully checked "S8a Yes" checkbox as fallback');
+                // console.log('Successfully checked "S8a Yes" checkbox as fallback');
             }
         } catch (fallbackError) {
             console.error('Error setting default citizenship status:', fallbackError);
         }
     }
 
-    console.log('mapCitizenshipStatus function completed');
+    // console.log('mapCitizenshipStatus function completed');
 }
 
 function mapVehiclesOwned(form, vehiclesOwned) {
@@ -5992,7 +6011,7 @@ function mapVehiclesOwned(form, vehiclesOwned) {
 
                 if (leasedCheckboxField) {
                     leasedCheckboxField.check();
-                    console.log(`Successfully checked "${leasedCheckboxFieldName}" for leased vehicle ${vehicleIndex}`);
+                    // console.log(`Successfully checked "${leasedCheckboxFieldName}" for leased vehicle ${vehicleIndex}`);
                 } else {
                     console.warn(`Could not find checkbox field "${leasedCheckboxFieldName}" for leased vehicle ${vehicleIndex}`);
 
@@ -6008,7 +6027,7 @@ function mapVehiclesOwned(form, vehiclesOwned) {
                             const field = form.getCheckBox(fieldName);
                             if (field) {
                                 field.check();
-                                console.log(`Successfully checked "${fieldName}" for leased vehicle ${vehicleIndex}`);
+                                // console.log(`Successfully checked "${fieldName}" for leased vehicle ${vehicleIndex}`);
                                 break;
                             }
                         } catch (e) {
@@ -6025,7 +6044,7 @@ function mapVehiclesOwned(form, vehiclesOwned) {
 
                 if (registeredOutsideField) {
                     registeredOutsideField.check();
-                    console.log(`Successfully checked "${registeredOutsideFieldName}" for registered outside CA vehicle ${vehicleIndex}`);
+                    // console.log(`Successfully checked "${registeredOutsideFieldName}" for registered outside CA vehicle ${vehicleIndex}`);
                 } else {
                     console.warn(`Could not find checkbox field "${registeredOutsideFieldName}" for registered outside CA vehicle ${vehicleIndex}`);
 
@@ -6041,7 +6060,7 @@ function mapVehiclesOwned(form, vehiclesOwned) {
                             const field = form.getCheckBox(fieldName);
                             if (field) {
                                 field.check();
-                                console.log(`Successfully checked "${fieldName}" for registered outside CA vehicle ${vehicleIndex}`);
+                                // console.log(`Successfully checked "${fieldName}" for registered outside CA vehicle ${vehicleIndex}`);
                                 break;
                             }
                         } catch (e) {
@@ -6062,7 +6081,7 @@ function mapS8cEligible(form) {
         const s8cEligibleField = form.getCheckBox("S8c Eligible");
         if (s8cEligibleField) {
             s8cEligibleField.check();
-            console.log('Successfully checked "S8c Eligible" checkbox');
+            // console.log('Successfully checked "S8c Eligible" checkbox');
         } else {
 
             const alternativeFieldNames = [
@@ -6077,7 +6096,7 @@ function mapS8cEligible(form) {
                     const field = form.getCheckBox(fieldName);
                     if (field) {
                         field.check();
-                        console.log(`Successfully checked "${fieldName}" checkbox`);
+                        // console.log(`Successfully checked "${fieldName}" checkbox`);
                         break;
                     }
                 } catch (e) {
@@ -6089,7 +6108,6 @@ function mapS8cEligible(form) {
         console.warn('Error setting S8c Eligible field:', e);
     }
 }
-
 
 function mapCurrentDateToSec10(form) {
     try {
@@ -6104,7 +6122,7 @@ function mapCurrentDateToSec10(form) {
         const sec10DateField = form.getTextField("Sec10 date");
         if (sec10DateField) {
             sec10DateField.setText(formattedDate);
-            console.log(`Successfully set "Sec10 date" to ${formattedDate}`);
+            // console.log(`Successfully set "Sec10 date" to ${formattedDate}`);
         } else {
 
             const alternativeFieldNames = [
@@ -6120,7 +6138,7 @@ function mapCurrentDateToSec10(form) {
                     const field = form.getTextField(fieldName);
                     if (field) {
                         field.setText(formattedDate);
-                        console.log(`Successfully set "${fieldName}" to ${formattedDate}`);
+                        // console.log(`Successfully set "${fieldName}" to ${formattedDate}`);
                         break;
                     }
                 } catch (e) {
@@ -6132,8 +6150,6 @@ function mapCurrentDateToSec10(form) {
         console.warn('Error setting Sec10 date field:', e);
     }
 }
-
-
 
 function getPlateFieldsForIndex(index) {
     if (index === 1) {
@@ -6172,7 +6188,6 @@ function getPlateFieldsForIndex(index) {
     }
     return [];
 }
-
 
 function getHullIdFieldsForIndex(index) {
     if (index === 1) {
@@ -6239,8 +6254,8 @@ function getHullIdFieldsForIndex(index) {
 }
 
 function mapVoterAddressUpdate(form, formData) {
-    console.log('Starting mapVoterAddressUpdate with formData:',
-        formData ? JSON.stringify(formData) : 'undefined');
+    // console.log('Starting mapVoterAddressUpdate with formData:',
+    // formData ? JSON.stringify(formData) : 'undefined');
 
     try {
 
@@ -6249,43 +6264,43 @@ function mapVoterAddressUpdate(form, formData) {
         if (formData && formData.checkboxOptions) {
 
             doNotUpdateVoterRegistration = formData.checkboxOptions.doNotUseForVoterRegistration;
-            console.log('Using doNotUseForVoterRegistration from checkboxOptions:', doNotUpdateVoterRegistration);
+            // console.log('Using doNotUseForVoterRegistration from checkboxOptions:', doNotUpdateVoterRegistration);
         }
 
         else if (formData && formData.voterAddressUpdate) {
             doNotUpdateVoterRegistration = formData.voterAddressUpdate.doNotUpdateVoterRegistration;
-            console.log('Using doNotUpdateVoterRegistration from voterAddressUpdate:', doNotUpdateVoterRegistration);
+            // console.log('Using doNotUpdateVoterRegistration from voterAddressUpdate:', doNotUpdateVoterRegistration);
         }
 
         else {
-            console.log('No voter registration data found in parameters, checking transaction data');
+            // console.log('No voter registration data found in parameters, checking transaction data');
 
 
             try {
                 const transactionJson = JSON.parse('{"checkboxOptions":{"leasedVehicle":true,"notUsCitizen":false,"doNotUseForVoterRegistration":false,"leasingCompanyName":"INSIDER (SMC-PVT) LTD, LONDON "}}');
                 if (transactionJson && transactionJson.checkboxOptions) {
                     doNotUpdateVoterRegistration = transactionJson.checkboxOptions.doNotUseForVoterRegistration;
-                    console.log('Using doNotUseForVoterRegistration from transaction data:', doNotUpdateVoterRegistration);
+                    // console.log('Using doNotUseForVoterRegistration from transaction data:', doNotUpdateVoterRegistration);
                 } else {
-                    console.log('No voter registration preference found in transaction data');
+                    // console.log('No voter registration preference found in transaction data');
                     return;
                 }
             } catch (e) {
-                console.log('Error parsing transaction data');
+                // console.log('Error parsing transaction data');
                 return;
             }
         }
 
 
         if (doNotUpdateVoterRegistration) {
-            console.log('User selected to not use address for voter registration, checking box');
+            // console.log('User selected to not use address for voter registration, checking box');
 
             const addressUpdateField = form.getCheckBox("Address Update");
             if (addressUpdateField) {
                 addressUpdateField.check();
-                console.log('Successfully checked "Address Update" checkbox');
+                // console.log('Successfully checked "Address Update" checkbox');
             } else {
-                console.log('Primary field "Address Update" not found, trying alternatives...');
+                // console.log('Primary field "Address Update" not found, trying alternatives...');
 
                 const alternativeFieldNames = [
                     "address update",
@@ -6296,32 +6311,29 @@ function mapVoterAddressUpdate(form, formData) {
 
                 for (const fieldName of alternativeFieldNames) {
                     try {
-                        console.log(`Trying alternative field: "${fieldName}"`);
+                        // console.log(`Trying alternative field: "${fieldName}"`);
                         const field = form.getCheckBox(fieldName);
 
                         if (field) {
                             field.check();
-                            console.log(`Successfully checked "${fieldName}" checkbox`);
+                            // console.log(`Successfully checked "${fieldName}" checkbox`);
                             break;
                         }
                     } catch (e) {
-                        console.log(`Error trying field "${fieldName}":`, e);
+                        // console.log(`Error trying field "${fieldName}":`, e);
                     }
                 }
             }
         } else {
-            console.log('User wants address to be used for voter registration, not checking box');
+            // console.log('User wants address to be used for voter registration, not checking box');
         }
     } catch (e) {
         console.warn('Error setting voter address update fields:', e);
-        console.log('Error details:', JSON.stringify(e, Object.getOwnPropertyNames(e)));
+        // console.log('Error details:', JSON.stringify(e, Object.getOwnPropertyNames(e)));
     }
 
-    console.log('mapVoterAddressUpdate function completed');
+    // console.log('mapVoterAddressUpdate function completed');
 }
-
-
-
 
 function mapPersonalBusinessInfo(form, personalInfo) {
     if (!personalInfo) return;
@@ -7186,8 +7198,9 @@ function mapNewOrCorrectResidence(form, sectionThreeData) {
 
 }
 
-
 exports.generatePDF = async (req, res) => {
+    console.log("pdf generates");
+
     try {
 
         const { transactionId, formType = 'Reg227', transactionType } = req.body;
@@ -7216,7 +7229,7 @@ exports.generatePDF = async (req, res) => {
                 });
 
                 if (finalTransfer && finalTransfer.formData) {
-                    console.log(`Found final transfer (${finalTransfer.transferIndex} of ${transaction.totalTransfers})`);
+                    // console.log(`Found final transfer (${finalTransfer.transferIndex} of ${transaction.totalTransfers})`);
                     finalTransferData = finalTransfer.formData;
                 } else {
                     console.warn(`Could not find final transfer data for group ${transaction.transferGroupId}`);
@@ -7226,13 +7239,13 @@ exports.generatePDF = async (req, res) => {
             }
         }
 
-        console.log('Transaction data:', JSON.stringify({
-            id: transaction._id,
-            type: effectiveTransactionType,
-            isMultiple: transaction.isPartOfMultipleTransfer,
-            index: transaction.transferIndex,
-            total: transaction.totalTransfers
-        }));
+        // console.log('Transaction data:', JSON.stringify({
+        //     id: transaction._id,
+        //     type: effectiveTransactionType,
+        //     isMultiple: transaction.isPartOfMultipleTransfer,
+        //     index: transaction.transferIndex,
+        //     total: transaction.totalTransfers
+        // }));
 
         let formData = transaction.formData;
 
@@ -7240,10 +7253,10 @@ exports.generatePDF = async (req, res) => {
             effectiveTransactionType?.includes('Multiple Transfer') ||
             (formData && formData.newOwners && formData.newOwners.owners);
 
-        console.log('Complete formData:', JSON.stringify(formData));
+        // console.log('Complete formData:', JSON.stringify(formData));
 
         if (isMultipleTransfer) {
-            console.log('Multiple transfer structure detected, restructuring data...');
+            // console.log('Multiple transfer structure detected, restructuring data...');
             try {
                 const restructuredData = {
                     owners: formData.owners || formData.newOwners?.owners || [],
@@ -7272,17 +7285,17 @@ exports.generatePDF = async (req, res) => {
                     pnoDetails: formData.pnoDetails || {}
                 };
 
-                console.log('Restructured data with preserved values:',
-                    JSON.stringify({
-                        hasOwners: restructuredData.owners.length > 0,
-                        hasVehicleInfo: Object.keys(restructuredData.vehicleInformation).length > 0,
-                        hasSellers: restructuredData.sellerInfo.sellers.length > 0
-                    }));
+                // console.log('Restructured data with preserved values:',
+                // JSON.stringify({
+                //     hasOwners: restructuredData.owners.length > 0,
+                //     hasVehicleInfo: Object.keys(restructuredData.vehicleInformation).length > 0,
+                //     hasSellers: restructuredData.sellerInfo.sellers.length > 0
+                // }));
 
                 formData = restructuredData;
             } catch (error) {
                 console.error('Error restructuring data:', error);
-                console.log('Keeping original formData due to restructuring error');
+                // console.log('Keeping original formData due to restructuring error');
             }
         }
 
@@ -7303,13 +7316,13 @@ exports.generatePDF = async (req, res) => {
         formData.trailerLocationDifferent = !!formData.trailerLocationDifferent;
         formData.sellerMailingAddressDifferent = !!formData.sellerMailingAddressDifferent;
 
-        console.log("After restructuring:");
+        // console.log("After restructuring:");
 
         let pdfPath;
         let pdfUrl;
 
         if (process.env.NODE_ENV === 'development') {
-            console.log("in Developmen")
+            // console.log("in Developmen")
             if (formType === 'DMVREG262') {
                 pdfPath = path.join(process.cwd(), 'public', 'pdfs', 'DMVREG262.pdf');
             } else if (formType === 'Reg101') {
@@ -7412,10 +7425,11 @@ exports.generatePDF = async (req, res) => {
             } else {
                 pdfUrl = `${baseUrl}/pdfs/Reg227.pdf`;
             }
-            console.log('Fetching PDF from URL:', pdfUrl);
+            // console.log('Fetching PDF from URL:', pdfUrl);
             const pdfResponse = await axios.get(pdfUrl, { responseType: 'arraybuffer' });
-            console.log("pdfResponse", pdfResponse)
+            // console.log("pdfResponse", pdfResponse.data)
             const existingPdfBytes = await pdfResponse.data;
+            // console.log("pdfResponse", existingPdfBytes)
 
             let modifiedPdfBytes;
             if (formType === 'DMVREG262') {
