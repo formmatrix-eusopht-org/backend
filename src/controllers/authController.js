@@ -12,7 +12,7 @@ exports.login = async (req, res) => {
 
     try {
         const { token } = req.body;
-        console.log("login called")
+        // console.log("login called")
         if (!token) {
             return res.status(400).json({ success: false, error: 'No token provided' });
         }
@@ -30,7 +30,7 @@ exports.login = async (req, res) => {
         const expiresIn = 14 * 24 * 60 * 60 * 1000; // 14 days
         const sessionCookie = await auth.createSessionCookie(token, { expiresIn });
         const userauth = await user.findOne({ firebase_uid: decodedToken.uid });
-        console.log("userauth", userauth)
+        // console.log("userauth", userauth)
         const userRole = userauth ? userauth.role : 1;
         const cookieOpts = {
             httpOnly: true,
@@ -102,7 +102,7 @@ exports.checkSession = async (req, res) => {
 };
 exports.addUser = async (req, res) => {
     try {
-        const { name, email, password, trialPeriod = 14 } = req.body;
+        const { name, email, password, trialPeriod = 14, createdBy } = req.body;
 
         if (!name || !email || !password) {
             return res.status(400).json({
@@ -134,6 +134,7 @@ exports.addUser = async (req, res) => {
             firebase_uid: userRecord.uid,
             name,
             email,
+            createdBy,
             role: 1,
             trialPeriod: trialDays,
             trialExpires
@@ -151,6 +152,7 @@ exports.addUser = async (req, res) => {
                 id: newUser._id,
                 name: newUser.name,
                 email: newUser.email,
+                createdBy,
                 role: newUser.role,
                 trialPeriod: newUser.trialPeriod,
                 trialExpires: newUser.trialExpires
@@ -224,14 +226,19 @@ exports.logout = async (req, res) => {
         res.status(500).json({ success: false, error: 'Internal server error' });
     }
 };
-
 exports.getUsers = async (req, res) => {
     try {
-        const users = await user.find({});
+        const { uid } = req.body; // take uid from request body
+
+        if (!uid) {
+            return res.status(400).json({ success: false, error: 'uid is required' });
+        }
+
+        const users = await user.find({ createdBy: uid }); // filter here
         res.json(users);
 
     } catch (error) {
-        console.error('Logout error:', error);
+        console.error('user error:', error);
         res.status(500).json({ success: false, error: 'Internal server error' });
     }
 };

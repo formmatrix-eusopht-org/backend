@@ -6,7 +6,7 @@ router.post('/login', authCotnroller.login);
 router.post('/logout', authCotnroller.logout);
 router.get('/checksession', authCotnroller.checkSession);
 router.post('/adduser', authCotnroller.addUser);
-router.get('/getusers', authCotnroller.getUsers);
+router.post('/getusers', authCotnroller.getUsers);
 
 module.exports = router;
     

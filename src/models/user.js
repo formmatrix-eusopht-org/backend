@@ -19,13 +19,17 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 1
   },
+  createdBy: {
+    type: String,
+    required: true,
+  },
   trialPeriod: {
     type: Number,
-    default: 14 
+    default: 14
   },
   trialExpires: {
     type: Date,
-    default: function() {
+    default: function () {
       const today = new Date();
       return new Date(today.setDate(today.getDate() + this.trialPeriod));
     }
