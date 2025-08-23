@@ -4,6 +4,7 @@ const connectDB = require('../lib/mongoDB');
 const auth = require('../lib/firebaseAdmin');
 const ms = require('ms');
 const user = require('../models/user');
+const { dynamicSendEmail } = require('../utils/emailer');
 
 
 
@@ -47,6 +48,7 @@ exports.login = async (req, res) => {
             .json({
                 success: true,
                 invalidatedSessionIds,
+                userData: userauth,
                 role: userRole
             });
     } catch (error) {
@@ -127,7 +129,7 @@ exports.addUser = async (req, res) => {
 
         // Calculate trial expiration date
         const today = new Date();
-        const trialExpires = new Date(today.setDate(today.getDate() + trialDays));
+        const trialExpires = new Date(today.getTime() + trialDays * 24 * 60 * 60 * 1000);
 
         // Create user in database with Firebase UID
         const newUser = await user.create({
@@ -144,7 +146,8 @@ exports.addUser = async (req, res) => {
             role: 1,
             trialExpires: trialExpires.getTime()
         });
-
+        let url = process.env.CLIENT_URL + "/"
+        await dynamicSendEmail(email, "user_account_creation", name, url)
         res.status(201).json({
             success: true,
             message: 'User created successfully',
@@ -174,7 +177,7 @@ exports.addUser = async (req, res) => {
                         success: false,
                         message: 'Invalid email format'
                     });
-                case 'auth/weak-password':
+                case 'auth/invalid-password':
                     return res.status(400).json({
                         success: false,
                         message: 'Password should be at least 6 characters'

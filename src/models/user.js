@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 14
   },
+  status: {
+    type: Number,
+    default: 1
+  },
   trialExpires: {
     type: Date,
     default: function () {
