@@ -6,6 +6,7 @@ const connectDB = require('./src/lib/mongoDB');
 const authRoutes = require('./src/routes/authRoutes');
 const transactionRoutes = require('./src/routes/transactionRoutes');
 const invoiceRoutes = require('./src/routes/invoiceRoutes');
+const paymentRoutes = require('./src/routes/paymentRoutes');
 const path = require('path');
 const fs = require('fs');
 
@@ -49,6 +50,7 @@ app.get('/api/invoice/:filename', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api', transactionRoutes);
 app.use('/api', invoiceRoutes);
+app.use('/api', paymentRoutes);
 
 app.get('/', (req, res) => {
     res.send('👋 Express API is running');
