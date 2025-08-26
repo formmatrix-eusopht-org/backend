@@ -7,6 +7,7 @@ const authRoutes = require('./src/routes/authRoutes');
 const transactionRoutes = require('./src/routes/transactionRoutes');
 const invoiceRoutes = require('./src/routes/invoiceRoutes');
 const paymentRoutes = require('./src/routes/paymentRoutes');
+const subscriptionsRoutes = require('./src/routes/subscriptionRoutes');
 const path = require('path');
 const fs = require('fs');
 
@@ -51,6 +52,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api', transactionRoutes);
 app.use('/api', invoiceRoutes);
 app.use('/api', paymentRoutes);
+app.use('/api', subscriptionsRoutes);
 
 app.get('/', (req, res) => {
     res.send('👋 Express API is running');

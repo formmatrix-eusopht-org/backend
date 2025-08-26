@@ -239,7 +239,7 @@ exports.getUsers = async (req, res) => {
 
         const users = await user.find({ createdBy: uid }); // filter here
         res.json(users);
-
+        return user;
     } catch (error) {
         console.error('user error:', error);
         res.status(500).json({ success: false, error: 'Internal server error' });
