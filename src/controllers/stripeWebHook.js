@@ -2,6 +2,8 @@ const Stripe = require("stripe");
 const { storeSubscription } = require("../services/subscriptionServices");
 const { storePayment } = require("../services/paymentServices");
 const { storeLog } = require("../services/logServices");
+const { dynamicSendEmail } = require("../utils/emailer");
+const { updateUserByFirebaseUid } = require("../services/userServices");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET_TEST_KEY;
@@ -13,13 +15,10 @@ module.exports = {
         let event;
 
         console.log("\n--- 🚀 Incoming Stripe webhook ---");
-        console.log("Signature header:", sig);
 
         try {
             event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-            console.log("✅ Webhook verified:", event.type);
         } catch (err) {
-            console.error("❌ Webhook signature verification failed:", err.message);
             return res.status(400).send(`Webhook Error: ${err.message}`);
         }
 
@@ -104,16 +103,101 @@ module.exports = {
                     message: "New subscription created",
                     data: sub, // full Stripe subscription object
                 });
-
+                await updateUserByFirebaseUid(sub.metadata.user_id, { subscriptionID: sub.id });
+                await dynamicSendEmail(sub.metadata.email, "user_subscription", sub.metadata.name, "");
 
                 break;
             }
 
-            // 🔄 Subscription updated
-            case "customer.subscription.updated":
-                console.log("♻️ Subscription updated:", data.id);
-                // TODO: Sync plan/status in DB
+            case "customer.subscription.updated": {
+                const sub = event.data.object;
+
+                console.log("♻️ Subscription updated:", sub.id);
+
+                // If cancel_at_period_end is false → subscription is still active
+                if (!sub.cancel_at_period_end) {
+                    console.log("✅ User chose to continue subscription");
+
+                    // Retrieve invoice to get billing period dates
+                    let invoice = null;
+                    try {
+                        invoice = await stripe.invoices.retrieve(sub.latest_invoice, {
+                            expand: ["lines.data.period"],
+                        });
+                    } catch (err) {
+                        console.warn("⚠️ Could not fetch invoice:", err.message);
+                    }
+
+                    const line = invoice?.lines?.data?.[0];
+                    const linePeriodStart = line?.period?.start;
+                    const linePeriodEnd = line?.period?.end;
+
+                    // Save or update subscription in DB
+                    await storeSubscription({
+                        userId: sub.metadata.user_id,
+                        name: sub.metadata.name,
+                        customerId: sub.customer,
+                        subscriptionId: sub.id,
+                        priceId: sub.items.data[0].price.id,
+                        planType: sub.metadata.plan_type,
+                        currentReference: sub.latest_invoice,
+                        status: sub.status,
+                        currentPeriodStart: linePeriodStart
+                            ? new Date(linePeriodStart * 1000)
+                            : new Date(),
+                        currentPeriodEnd: linePeriodEnd
+                            ? new Date(linePeriodEnd * 1000)
+                            : new Date(),
+                    });
+
+                    if (invoice) {
+                        await storePayment({
+                            userId: sub.metadata.user_id,
+                            customerId: sub.customer,
+                            subscriptionId: sub.id,
+                            invoiceId: invoice.id,
+                            paymentIntentId: invoice.payment_intent,
+                            amountPaid: invoice.amount_paid,
+                            currency: invoice.currency,
+                            status: invoice.status,
+                            periodStart: linePeriodStart
+                                ? new Date(linePeriodStart * 1000)
+                                : new Date(),
+                            periodEnd: linePeriodEnd
+                                ? new Date(linePeriodEnd * 1000)
+                                : new Date(),
+                        });
+                    }
+
+                    await storeLog({
+                        userId: sub.metadata.user_id,
+                        action: "SUBSCRIBE_CONTINUED",
+                        subscriptionId: sub.id,
+                        message: "User continued subscription (cancel_at_period_end = false)",
+                        data: sub,
+                    });
+                    await updateUser(sub.metadata.user_id, { subscribtionID: sub.id });
+                    await dynamicSendEmail(
+                        sub.metadata.email,
+                        "user_subscription_continued",
+                        sub.metadata.name,
+                        ""
+                    );
+                } else {
+                    console.log("❌ User set subscription to cancel at period end");
+                    // Optional: update DB status or log this
+                    await storeLog({
+                        userId: sub.metadata.user_id,
+                        action: "SUBSCRIPTION_SET_TO_CANCEL",
+                        subscriptionId: sub.id,
+                        message: "User set cancel_at_period_end = true",
+                        data: sub,
+                    });
+                }
+
                 break;
+            }
+
 
             // ❌ Subscription canceled
             case "customer.subscription.deleted":

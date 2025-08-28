@@ -50,4 +50,55 @@ module.exports = {
       </html>
     `;
   },
+  subscriptionTemplate: () => {
+    return `
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+      @media only screen and (max-width: 600px) {
+        .container {
+          width: 95%;
+        }
+      }
+      @media only screen and (min-width: 601px) {
+        .container {
+         width: 50%;
+        }
+      }
+    </style>
+  </head>
+
+    <body style='background-color:#fafaf5;padding-top:5px'>
+      <div style='display:flex;margin-bottom:10px;margin-top:10px'>
+        <img src='https://serene-chimera-01cee3.netlify.app/static/media/logo.8602b9819fe5c3195656.png' alt=''style='height:2.5rem;margin-left:auto;margin-right:auto' />
+      </div>
+      <div style='display:flex;border-radius:10px;padding:10px;height:max-content;'>
+        <div class='container' style='background-color:white;margin-left:auto;margin-right:auto;border-radius:10px;padding:10px;height:max-content;'>
+          <div style='text-align:center'>
+            <img src='https://serene-chimera-01cee3.netlify.app/static/media/mail.03e2e15adf70c6f45509.png'style='height:225px;' />
+          </div>
+          <div>
+            <p>Hi there,</p>
+            <p>Congratualtions</strong> on your recent purchase of<strong> FormMatic subscription!</strong> We are excited to have you on board. You can access the details of your purchase in your Account.</p>
+          </div>
+        <p style='color:#333333'>Need assistance or have questions? Our dedicated team is ready to help. Reach out to us at <span style='color:#41ccad;cursor:pointer;text-decoration: none;'>support@FormMatic.com</span>, and we'll be more happy to assist you.</p>
+          <div>
+          <p>Best Regards,</p>
+        </div>
+        <div>
+          <p>FormMatic Team</p>
+        </div>
+            <div style='text-align: center;'>
+              <p style='color:#A3A9BB;font-size:0.7rem;'>© 2025 FormMatic Inc. All rights reserved.</p>
+            </div>
+          </div>
+
+      </div>
+    </body>
+    `
+  },
 };

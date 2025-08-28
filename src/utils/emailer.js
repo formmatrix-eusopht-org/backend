@@ -1,14 +1,23 @@
 const nodeMailer = require("nodemailer");
-const { createUserTemplate } = require("./templates");
+const { createUserTemplate, subscriptionTemplate } = require("./templates");
 
-const selectTemplate = (first_name, url) => {
-    return createUserTemplate(first_name, url);
+const selectTemplate = (templateType, first_name, href, errors, company_name) => {
+    switch (templateType) {
+        case "user_account_creation":
+            return createUserTemplate(first_name, href);
+        case "user_subscription":
+            return subscriptionTemplate();
+        default:
+            return;
+    }
 };
 
 const getSubject = (templateType) => {
     switch (templateType) {
         case "user_account_creation":
             return "Welcome to FormMatic!";
+        case "user_subscription":
+            return "Your subscription is confirmed!";
         default:
             return "Notification from FormMatic";
     }
@@ -28,7 +37,7 @@ async function dynamicSendEmail(email, templateType, first_name, url) {
             },
         });
 
-        let html = await selectTemplate(first_name, url);
+        let html = await selectTemplate(templateType, first_name, url);
 
         const mailOptions = {
             from: process.env.DEFAULT_FROM,

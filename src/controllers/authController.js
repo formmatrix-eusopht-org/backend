@@ -137,6 +137,8 @@ exports.addUser = async (req, res) => {
             name,
             email,
             createdBy,
+            plan: "trial",
+            planExpiration: trialExpires,
             role: 1,
             trialPeriod: trialDays,
             trialExpires

@@ -1,4 +1,5 @@
 const Subscribtion = require("../models/subscribtion");
+const User = require("../models/user");
 const { storeSubscription } = require("../services/subscriptionServices");
 const Stripe = require("stripe");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -35,15 +36,15 @@ module.exports = {
                 invoice_settings: { default_payment_method: paymentMethodId },
             });
             let subscription;
+            const price_id = priceId === "Monthly Plan"
+                ? process.env.MONTHLY_PRICE_ID
+                : priceId === "Yearly Plan" ? process.env.YEARLY_PRICE_ID : process.env.DAILY_PRICE_ID;
             try {// 3. Create subscription
                 subscription = await stripe.subscriptions.create({
                     customer: customer.id,
                     items: [
                         {
-                            price:
-                                priceId === "monthly"
-                                    ? process.env.MONTHLY_PRICE_ID
-                                    : process.env.YEARLY_PRICE_ID,
+                            price: price_id,
                             quantity: 1,
                         },
                     ],
@@ -93,11 +94,37 @@ module.exports = {
             res.status(500).json({ error: err.message });
         }
     },
-    getSubscribtions: async (req, res) => {
+    cancelSubscription: async (req, res) => {
+        const { subscriptionId } = req.body;
+        if (!subscriptionId) {
+            return res.status(400).json({ error: "Subscription ID is required" });
+        }
+
         try {
-            const subscriptions = await Subscribtion.find().sort({ createdAt: -1 });
+            const subscription = await stripe.subscriptions.update(subscriptionId, {
+                cancel_at_period_end: true,
+            });
+
+            res.json({
+                message: "Subscription set to cancel at period end",
+                subscription
+            });
+        } catch (err) {
+            console.error("Error canceling subscription:", err);
+            res.status(500).json({ error: err.message });
+        }
+    },
+
+    getSubscriptions: async (req, res) => {
+        try {
+            const { uid } = req.body; // ✅ not req.params
+
+            // 2. Find subscriptions for that user
+            const subscriptions = await Subscribtion.find({ userId: uid })
+
             res.json(subscriptions);
         } catch (err) {
+            console.error("Error fetching subscriptions:", err);
             res.status(500).json({ error: err.message });
         }
     },

@@ -7,6 +7,7 @@ const authRoutes = require('./src/routes/authRoutes');
 const transactionRoutes = require('./src/routes/transactionRoutes');
 const invoiceRoutes = require('./src/routes/invoiceRoutes');
 const subscriptionsRoutes = require('./src/routes/subscriptionRoutes');
+const userRoutes = require('./src/routes/userRoutes');
 const webhookRoutes = require('./src/routes/webhook');
 const path = require('path');
 const fs = require('fs');
@@ -56,6 +57,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api', transactionRoutes);
 app.use('/api', invoiceRoutes);
 app.use('/api', subscriptionsRoutes);
+app.use('/api', userRoutes);
 app.get('/', (req, res) => {
   res.send('👋 Express API is running');
 });

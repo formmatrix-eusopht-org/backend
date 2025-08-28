@@ -23,6 +23,19 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  subscriptionID: {
+    type: String,
+    default: null
+  },
+  plan: {
+    type: String,
+    enum: ["trial", "monthly", "yearly"],
+    default: "trial"
+  },
+  planExpiration: {
+    type: String,
+    default: null
+  },
   trialPeriod: {
     type: Number,
     default: 14
