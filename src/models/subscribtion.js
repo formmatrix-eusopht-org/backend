@@ -1,19 +1,18 @@
+// models/Subscription.js
 const mongoose = require("mongoose");
 
-const subscriptionSchema = new mongoose.Schema(
-  {
-    userId: { type: String, required: true },
-    companyId: { type: String }, // optional if you need
-    customerId: { type: String, required: true },
-    subscriptionId: { type: String, required: true },
-    priceId: { type: String, required: true },
-    type: { type: String, enum: ["monthly", "yearly"], required: true },
-    currentReference: { type: String }, // like invoice, etc.
-    status: { type: Boolean, default: false },
-  },
-  { timestamps: true }
-);
+const SubscriptionSchema = new mongoose.Schema({
+  userId: { type: String, ref: "users", required: true },
+  customerId: String,
+  subscriptionId: String,
+  priceId: String,
+  planType: String,
+  status: String,
+  currentPeriodStart: Date,
+  currentPeriodEnd: Date,
+  createdAt: { type: Date, default: Date.now },
+});
 
 module.exports =
   mongoose.models.Subscription ||
-  mongoose.model("Subscription", subscriptionSchema);
+  mongoose.model("Subscription", SubscriptionSchema);

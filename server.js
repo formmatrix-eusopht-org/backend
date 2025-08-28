@@ -6,8 +6,8 @@ const connectDB = require('./src/lib/mongoDB');
 const authRoutes = require('./src/routes/authRoutes');
 const transactionRoutes = require('./src/routes/transactionRoutes');
 const invoiceRoutes = require('./src/routes/invoiceRoutes');
-const paymentRoutes = require('./src/routes/paymentRoutes');
 const subscriptionsRoutes = require('./src/routes/subscriptionRoutes');
+const webhookRoutes = require('./src/routes/webhook');
 const path = require('path');
 const fs = require('fs');
 
@@ -21,6 +21,10 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
+);
+app.use('/webhook',
+  express.raw({ type: 'application/json' }),
+  webhookRoutes
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -51,13 +55,11 @@ app.get('/api/invoice/:filename', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api', transactionRoutes);
 app.use('/api', invoiceRoutes);
-app.use('/api', paymentRoutes);
 app.use('/api', subscriptionsRoutes);
-
 app.get('/', (req, res) => {
-    res.send('👋 Express API is running');
+  res.send('👋 Express API is running');
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server listening on http://localhost:${PORT}`);
+  console.log(`🚀 Server listening on http://localhost:${PORT}`);
 });

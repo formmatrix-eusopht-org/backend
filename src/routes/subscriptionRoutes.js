@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const subscriptionController = require('../controllers/subscriptionController');
 
-// POST: /api/create_subscription
-router.post('/store_subscription', subscriptionController.createSubscription);
+// POST: /api/subscribe_user
+router.post('/subscribe_user', subscriptionController.createSubscription);
 
 module.exports = router;
