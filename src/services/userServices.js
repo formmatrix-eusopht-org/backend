@@ -1,7 +1,7 @@
 const User = require("../models/user");
-// Get User by ID
-async function getUserById(id) {
-  return await User.findById(id);
+// Get User by Firebase UID
+async function getUserByfirebaseUid(firebaseUid) {
+  return await User.findOne({ firebase_uid: firebaseUid });
 }
 
 // Update User
@@ -20,14 +20,14 @@ async function updateUser(id, updates) {
     await auth.updateUser(existingUser.firebase_uid, firebaseUpdates);
   }
 
-  let trialExpires = existingUser.trialExpires;
-  if (trialPeriod !== undefined) {
-    const trialDays = parseInt(trialPeriod);
-    if (isNaN(trialDays) || trialDays < 0) {
-      throw new Error("Trial period must be a positive number");
+  let planExpires = existingUser.planExpires;
+  if (plan !== undefined) {
+    const planDays = parseInt(plan);
+    if (isNaN(planDays) || planDays < 0) {
+      throw new Error("Plan duration must be a positive number");
     }
     const today = new Date();
-    trialExpires = new Date(today.getTime() + trialDays * 24 * 60 * 60 * 1000);
+    planExpires = new Date(today.getTime() + planDays * 24 * 60 * 60 * 1000);
   }
 
   const updatedUser = await User.findByIdAndUpdate(
@@ -37,15 +37,15 @@ async function updateUser(id, updates) {
       ...(email && { email }),
       ...(plan && { plan }),
       ...(role !== undefined && { role }),
-      ...(trialPeriod !== undefined && { trialPeriod }),
-      ...(trialExpires && { trialExpires }),
+      ...(plan !== undefined && { plan }),
+      ...(planExpires && { planExpires }),
     },
     { new: true }
   );
 
   await auth.setCustomUserClaims(existingUser.firebase_uid, {
     role: updatedUser.role,
-    trialExpires: updatedUser.trialExpires?.getTime(),
+    planExpires: updatedUser.planExpires?.getTime(),
   });
 
   return updatedUser;
@@ -75,7 +75,7 @@ async function deleteUser(id) {
 }
 
 module.exports = {
-  getUserById,
+  getUserByfirebaseUid,
   updateUser,
   deleteUser,
   updateUserByFirebaseUid

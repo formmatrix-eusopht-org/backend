@@ -2,6 +2,7 @@ const Subscribtion = require("../models/subscribtion");
 const User = require("../models/user");
 const { storeSubscription } = require("../services/subscriptionServices");
 const Stripe = require("stripe");
+const { updateUserByFirebaseUid, getUserByfirebaseUid } = require("../services/userServices");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 module.exports = {
@@ -69,21 +70,6 @@ module.exports = {
                 return;
             }
 
-            // // 4. Save subscription in MongoDB
-            // const savedSub = await storeSubscription(
-            //     userId,
-            //     name,
-            //     customer.id,
-            //     subscription.id,
-            //     priceId === "monthly"
-            //         ? process.env.MONTHLY_PRICE_ID
-            //         : process.env.YEARLY_PRICE_ID,
-            //     priceId,
-            //     subscription.latest_invoice?.id || null, // current reference
-            //     autoSubscribe,
-            // );
-
-            // 5. Send response to frontend
             res.json({
                 clientSecret:
                     subscription.latest_invoice,
@@ -95,23 +81,41 @@ module.exports = {
         }
     },
     cancelSubscription: async (req, res) => {
-        const { subscriptionId } = req.body;
-        if (!subscriptionId) {
-            return res.status(400).json({ error: "Subscription ID is required" });
+        const { firebaseUid } = req.body;
+        console.log("firebaseUid:", firebaseUid);
+
+        if (!firebaseUid) {
+            return res.status(400).json({ error: "Firebase ID is required" });
         }
 
         try {
-            const subscription = await stripe.subscriptions.update(subscriptionId, {
+            const user = await getUserByfirebaseUid(firebaseUid);
+            if (!user) {
+                return res.status(404).json({ error: "User not found" });
+            }
+
+            if (!user.subscriptionID) {
+                return res.status(400).json({ error: "User has no active subscription" });
+            }
+
+            // Retrieve subscription to validate status
+            const currentSub = await stripe.subscriptions.retrieve(user.subscriptionID);
+            if (!currentSub || currentSub.status === "canceled") {
+                return res.status(400).json({ error: "Subscription already canceled or invalid" });
+            }
+
+            // Set cancel at period end
+            const subscription = await stripe.subscriptions.update(user.subscriptionID, {
                 cancel_at_period_end: true,
             });
 
             res.json({
                 message: "Subscription set to cancel at period end",
-                subscription
+                subscription,
             });
         } catch (err) {
             console.error("Error canceling subscription:", err);
-            res.status(500).json({ error: err.message });
+            res.status(500).json({ error: "Failed to cancel subscription" });
         }
     },
 

@@ -2,249 +2,152 @@ const { v4: uuidv4 } = require('uuid');
 const { handleSessionLimit, validateSession, removeSession } = require('../lib/sessionManager');
 const connectDB = require('../lib/mongoDB');
 const auth = require('../lib/firebaseAdmin');
-const ms = require('ms');
 const user = require('../models/user');
 const { dynamicSendEmail } = require('../utils/emailer');
+const { getUserByfirebaseUid } = require('../services/userServices');
 
-
-
-
+// LOGIN
 exports.login = async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ success: false, error: 'No token provided' });
 
-    try {
-        const { token } = req.body;
-        // console.log("login called")
-        if (!token) {
-            return res.status(400).json({ success: false, error: 'No token provided' });
+    const decodedToken = await auth.verifyIdToken(token);
+    const sessionId = uuidv4();
+    const userAgent = req.get('User-Agent') || 'unknown';
+    const invalidatedSessionIds = await handleSessionLimit(decodedToken.uid, sessionId, userAgent);
+
+    const expiresIn = 14 * 24 * 60 * 60 * 1000; // 14 days
+    const sessionCookie = await auth.createSessionCookie(token, { expiresIn });
+
+    const userauth = await user.findOne({ firebase_uid: decodedToken.uid });
+    const cookieOpts = { httpOnly: true, secure: true, sameSite: 'none', maxAge: expiresIn, path: '/' };
+
+    const userDataISO = userauth
+      ? {
+          ...userauth.toObject(),
+          planExpiration: userauth.planExpiration ? userauth.planExpiration.toISOString() : null
         }
+      : null;
 
-        const decodedToken = await auth.verifyIdToken(token);
-
-        const sessionId = uuidv4();
-        const userAgent = req.get('User-Agent') || 'unknown';
-        const invalidatedSessionIds = await handleSessionLimit(
-            decodedToken.uid,
-            sessionId,
-            userAgent
-        );
-
-        const expiresIn = 14 * 24 * 60 * 60 * 1000; // 14 days
-        const sessionCookie = await auth.createSessionCookie(token, { expiresIn });
-        const userauth = await user.findOne({ firebase_uid: decodedToken.uid });
-        // console.log("userauth", userauth)
-        const userRole = userauth ? userauth.role : 1;
-        const cookieOpts = {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            maxAge: expiresIn,
-            path: '/',
-        };
-
-        console.log("login success", decodedToken.uid, sessionId, invalidatedSessionIds)
-        res
-            .cookie('session', sessionCookie, cookieOpts)
-            .cookie('sessionId', sessionId, cookieOpts)
-            .json({
-                success: true,
-                invalidatedSessionIds,
-                userData: userauth,
-                role: userRole
-            });
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
-    }
+    res
+      .cookie('session', sessionCookie, cookieOpts)
+      .cookie('sessionId', sessionId, cookieOpts)
+      .json({ success: true, invalidatedSessionIds, userData: userDataISO });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
 };
 
+// CHECK SESSION
 exports.checkSession = async (req, res) => {
+  try {
+    const referer = req.get('referer') || '';
+    let refererPath = '';
+    try { refererPath = new URL(referer).pathname; } catch {}
 
-    try {
-        const referer = req.get('referer') || '';
-        let refererPath = '';
-        try {
-            refererPath = new URL(referer).pathname;
-        } catch { }
+    const sessionCookie = req.cookies.session;
+    const sessionId = req.cookies.sessionId;
 
-        console.log('checkSession called from path:', refererPath);
+    if (!sessionCookie || !sessionId) return res.json({ user: null, path: refererPath });
 
-        const sessionCookie = req.cookies.session;
-        const sessionId = req.cookies.sessionId;
+    let decodedClaims;
+    try { decodedClaims = await auth.verifySessionCookie(sessionCookie, true); } 
+    catch { return res.json({ user: null, path: refererPath }); }
 
-        if (!sessionCookie || !sessionId) {
-            console.log('No session or sessionId cookie found');
-            return res.json({ user: null, path: refererPath });
-        }
+    if (!decodedClaims.uid) return res.json({ user: null, path: refererPath });
 
-        let decodedClaims;
-        try {
-            decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
-        } catch (e) {
-            console.error('Session verification failed:', e);
-            return res.json({ user: null, path: refererPath });
-        }
+    const isValid = await validateSession(decodedClaims.uid, sessionId);
+    if (!isValid) return res.json({ user: null, path: refererPath });
 
-        if (!decodedClaims.uid) {
-            console.log('No UID in decoded claims');
-            return res.json({ user: null, path: refererPath });
-        }
+    const userDataFrommongo = await getUserByfirebaseUid(decodedClaims.uid);
+    const userDataISO = userDataFrommongo
+      ? { ...userDataFrommongo.toObject(), planExpiration: userDataFrommongo.planExpiration.toISOString() }
+      : null;
 
-        const isValid = await validateSession(decodedClaims.uid, sessionId);
-        if (!isValid) {
-            console.log(`Session ${sessionId} is no longer valid`);
-            return res.json({ user: null, path: refererPath });
-        }
-        const obj = { user: decodedClaims, path: refererPath }
-        console.log("session", obj)
-        return res.json({ user: decodedClaims, path: refererPath });
-    } catch (err) {
-        console.error('Session check error:', err);
-        return res.json({ user: null, path: null });
-    }
+    return res.json({ user: decodedClaims, path: refererPath, userData: userDataISO });
+  } catch (err) {
+    console.error('Session check error:', err);
+    return res.json({ user: null, path: null });
+  }
 };
+
+// ADD USER
 exports.addUser = async (req, res) => {
-    try {
-        const { name, email, password, trialPeriod = 14, createdBy } = req.body;
+  try {
+    const { name, email, password, trialPeriod = 14, createdBy } = req.body;
 
-        if (!name || !email || !password) {
-            return res.status(400).json({
-                success: false,
-                message: 'Please provide name, email and password'
-            });
-        }
+    if (!name || !email || !password)
+      return res.status(400).json({ success: false, message: 'Please provide name, email and password' });
 
-        const trialDays = parseInt(trialPeriod);
-        if (isNaN(trialDays) || trialDays < 0) {
-            return res.status(400).json({
-                success: false,
-                message: 'Trial period must be a positive number'
-            });
-        }
+    const trialDays = parseInt(trialPeriod);
+    if (isNaN(trialDays) || trialDays < 0)
+      return res.status(400).json({ success: false, message: 'Trial period must be a positive number' });
 
-        const userRecord = await auth.createUser({
-            email,
-            password,
-            displayName: name,
-        });
+    const userRecord = await auth.createUser({ email, password, displayName: name });
 
-        // Calculate trial expiration date
-        const today = new Date();
-        const trialExpires = new Date(today.getTime() + trialDays * 24 * 60 * 60 * 1000);
+    const today = new Date();
+    const planExpiration = new Date(today.getTime() + trialDays * 24 * 60 * 60 * 1000);
 
-        // Create user in database with Firebase UID
-        const newUser = await user.create({
-            firebase_uid: userRecord.uid,
-            name,
-            email,
-            createdBy,
-            plan: "trial",
-            planExpiration: trialExpires,
-            role: 1,
-            trialPeriod: trialDays,
-            trialExpires
-        });
+    const newUser = await user.create({
+      firebase_uid: userRecord.uid,
+      name,
+      email,
+      createdBy,
+      plan: "trial",
+      role: 1,
+      trialPeriod: trialDays,
+      planExpiration
+    });
 
-        await auth.setCustomUserClaims(userRecord.uid, {
-            role: 1,
-            trialExpires: trialExpires.getTime()
-        });
-        let url = process.env.CLIENT_URL + "/"
-        await dynamicSendEmail(email, "user_account_creation", name, url)
-        res.status(201).json({
-            success: true,
-            message: 'User created successfully',
-            data: {
-                id: newUser._id,
-                name: newUser.name,
-                email: newUser.email,
-                createdBy,
-                role: newUser.role,
-                trialPeriod: newUser.trialPeriod,
-                trialExpires: newUser.trialExpires
-            }
-        });
-    } catch (error) {
-        console.error('Error adding user:', error);
+    await auth.setCustomUserClaims(userRecord.uid, { role: 1, planExpires: planExpiration.getTime() });
 
-        // Handle Firebase specific errors
-        if (error.code) {
-            switch (error.code) {
-                case 'auth/email-already-exists':
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Email already exists'
-                    });
-                case 'auth/invalid-email':
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Invalid email format'
-                    });
-                case 'auth/invalid-password':
-                    return res.status(400).json({
-                        success: false,
-                        message: 'Password should be at least 6 characters'
-                    });
-                default:
-                    return res.status(500).json({
-                        success: false,
-                        message: 'Error creating user',
-                        error: error.message
-                    });
-            }
-        }
+    const url = process.env.CLIENT_URL + "/";
+    await dynamicSendEmail(email, "user_account_creation", name, url);
 
-        res.status(500).json({
-            success: false,
-            message: 'Error creating user',
-            error: error.message
-        });
-    }
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      data: { ...newUser.toObject(), planExpiration: planExpiration.toISOString() }
+    });
+  } catch (error) {
+    console.error('Error adding user:', error);
+    res.status(500).json({ success: false, message: 'Error creating user', error: error.message });
+  }
 };
 
-
+// LOGOUT
 exports.logout = async (req, res) => {
-    console.log("logout called")
-    try {
-        const sessionId = req.cookies.sessionId;
-        const sessionCookie = req.cookies.session;
+  try {
+    const sessionId = req.cookies.sessionId;
+    const sessionCookie = req.cookies.session;
 
-        if (sessionCookie && sessionId) {
-            await removeSession(sessionId);
-            console.log(`Removed session ${sessionId}`);
-        }
+    if (sessionCookie && sessionId) await removeSession(sessionId);
 
-        const cookieOpts = {
-            httpOnly: true,
-            secure: true,
-            sameSite: 'none',
-            path: '/',
-            maxAge: 0,
-        };
-
-        res
-            .cookie('session', '', cookieOpts)
-            .cookie('sessionId', '', cookieOpts)
-            .json({ success: true });
-
-    } catch (error) {
-        console.error('Logout error:', error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
-    }
+    const cookieOpts = { httpOnly: true, secure: true, sameSite: 'none', path: '/', maxAge: 0 };
+    res.cookie('session', '', cookieOpts).cookie('sessionId', '', cookieOpts).json({ success: true });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
 };
+
+// GET USERS
 exports.getUsers = async (req, res) => {
-    try {
-        const { uid } = req.body; // take uid from request body
+  try {
+    const { uid } = req.body;
+    if (!uid) return res.status(400).json({ success: false, error: 'uid is required' });
 
-        if (!uid) {
-            return res.status(400).json({ success: false, error: 'uid is required' });
-        }
+    const usersList = await user.find({ createdBy: uid });
+    const usersISO = usersList.map(u => ({
+      ...u.toObject(),
+      planExpiration: u.planExpiration ? u.planExpiration.toISOString() : null
+    }));
 
-        const users = await user.find({ createdBy: uid }); // filter here
-        res.json(users);
-        return user;
-    } catch (error) {
-        console.error('user error:', error);
-        res.status(500).json({ success: false, error: 'Internal server error' });
-    }
+    res.json(usersISO);
+  } catch (error) {
+    console.error('user error:', error);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
 };
-

@@ -29,12 +29,15 @@ const userSchema = new mongoose.Schema({
   },
   plan: {
     type: String,
-    enum: ["trial", "monthly", "yearly"],
+    enum: ["trial", "daily", "monthly", "yearly"],
     default: "trial"
   },
   planExpiration: {
-    type: String,
-    default: null
+    type: Date,
+    default: function () {
+      const today = new Date();
+      return new Date(today.setDate(today.getDate() + this.trialPeriod));
+    }
   },
   trialPeriod: {
     type: Number,
@@ -43,13 +46,6 @@ const userSchema = new mongoose.Schema({
   status: {
     type: Number,
     default: 1
-  },
-  trialExpires: {
-    type: Date,
-    default: function () {
-      const today = new Date();
-      return new Date(today.setDate(today.getDate() + this.trialPeriod));
-    }
   },
   createdAt: {
     type: Date,
