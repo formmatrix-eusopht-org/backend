@@ -63,8 +63,6 @@ module.exports = {
                         data: sub,
                     });
 
-
-
                     console.log("🆕 Subscription created:", sub.id);
                     break;
                 }
@@ -177,7 +175,7 @@ module.exports = {
                     });
 
                     // Optional: notify user by email
-                    // await dynamicSendEmail(invoice.metadata.email, "payment_failed", "", "");
+                    await dynamicSendEmail(invoice.metadata.email, "payment_failed", "", "");
 
                     console.log("⚠️ Invoice payment failed:", invoice.id);
                     break;
@@ -236,23 +234,24 @@ module.exports = {
                 }
 
                 // ⏳ Trial ending soon
-                case "customer.subscription.trial_will_end": {
-                    const sub = object;
+                // case "customer.subscription.trial_will_end": {
+                //     const sub = object;
 
-                    // // Optional: send email
-                    // // await dynamicSendEmail(sub.metadata.email, "trial_will_end", sub.metadata.name, "");
+                //     // // Optional: send email
+                //     // // await dynamicSendEmail(sub.metadata.email, "trial_will_end", sub.metadata.name, "");
 
-                    // await storeLog({
-                    //     userId: sub.metadata.user_id,
-                    //     action: "TRIAL_ENDING",
-                    //     subscriptionId: sub.id,
-                    //     message: "Trial ending soon",
-                    //     data: sub,
-                    // });
+                //     await storeLog({
+                //         userId: sub.metadata.user_id,
+                //         action: "TRIAL_ENDING",
+                //         subscriptionId: sub.id,
+                //         message: "Trial ending soon",
+                //         data: sub,
+                //     });
+                //     await dynamicSendEmail(sub.metadata.email, "trial_will_end", sub.metadata.name, "/");
 
-                    console.log("⏳ Trial ending soon:", sub.id);
-                    break;
-                }
+                //     console.log("⏳ Trial ending soon:", sub.id);
+                //     break;
+                // }
 
                 // Everything else → just log
                 // default:

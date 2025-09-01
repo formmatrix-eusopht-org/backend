@@ -28,6 +28,11 @@ module.exports = {
         await connectDB();
         return Subscription.findById(id);
     },
+    
+    getSubscriptionBySubscribtionId: async (id) => {
+        await connectDB();
+        return await Subscription.find({ subscriptionId: id });
+    },
 
     // Get subscription by Stripe subscriptionId
     getSubscriptionByStripeId: async (subscriptionId) => {

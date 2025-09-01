@@ -1,8 +1,9 @@
 const Subscribtion = require("../models/subscribtion");
 const User = require("../models/user");
-const { storeSubscription } = require("../services/subscriptionServices");
+const { storeSubscription, getSubscriptionBySubscribtionId } = require("../services/subscriptionServices");
 const Stripe = require("stripe");
 const { updateUserByFirebaseUid, getUserByfirebaseUid } = require("../services/userServices");
+const { getPaymentsBySubscription } = require("../services/paymentServices");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 module.exports = {
@@ -82,7 +83,6 @@ module.exports = {
     },
     cancelSubscription: async (req, res) => {
         const { firebaseUid } = req.body;
-        console.log("firebaseUid:", firebaseUid);
 
         if (!firebaseUid) {
             return res.status(400).json({ error: "Firebase ID is required" });
@@ -132,6 +132,55 @@ module.exports = {
             res.status(500).json({ error: err.message });
         }
     },
+    getUserSubscriptionsBySubscriptionsId: async (req, res) => {
+        try {
+            const { subscriptionID } = req.body;
+
+            if (!subscriptionID) {
+                return res.status(400).json({ error: "subscriptionID is required" });
+            }
+
+            // Fetch subscription + payments
+            const subscriptions = await getSubscriptionBySubscribtionId(subscriptionID);
+            const payments = await getPaymentsBySubscription(subscriptionID);
+
+            let formattedSubscription = {};
+            if (subscriptions && subscriptions.length > 0) {
+                const sub = subscriptions[0].toObject ? subscriptions[0].toObject() : subscriptions[0];
+
+                const stripeSub = await stripe.subscriptions.retrieve(subscriptionID, {
+                    expand: ["latest_invoice"],
+                });
+
+                // Stripe hosted invoice URL
+                const invoice = stripeSub.latest_invoice;
+                const invoiceUrl = invoice?.hosted_invoice_url || null;
+
+                // Price mapping
+                const priceMap = {
+                    [process.env.DAILY_PRICE_ID]: "5",
+                    [process.env.MONTHLY_PRICE_ID]: "50",
+                    [process.env.YEARLY_PRICE_ID]: "500",
+                };
+
+                formattedSubscription = {
+                    ...sub,
+                    invoiceUrl,
+                    Price: priceMap[sub.priceId] || "Unknown", // fallback
+                };
+            }
+
+            return res.json({
+                subscriptions: formattedSubscription,
+                payments: payments || [],
+            });
+
+        } catch (err) {
+            console.error("Error fetching subscriptions:", err);
+            return res.status(500).json({ error: err.message });
+        }
+    },
+
     getSubscribtionById: async (req, res) => {
         try {
             const subscription = await Subscribtion.findById(req.params.id);

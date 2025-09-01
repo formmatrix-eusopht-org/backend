@@ -41,10 +41,9 @@ module.exports = {
         return Payment.findById(id);
     },
 
-    // Get all payments for a subscription
-    getPaymentsBySubscription: async (subscriptionId) => {
+    getPaymentsBySubscription: async (subscriptionID) => {
         await connectDB();
-        return Payment.find({ subscriptionId });
+        return Payment.find({ subscriptionId: subscriptionID });
     },
 
     // Get all payments for a user

@@ -1,5 +1,5 @@
 const nodeMailer = require("nodemailer");
-const { createUserTemplate, subscriptionTemplate } = require("./templates");
+const { createUserTemplate, subscriptionTemplate, subscriptionFailedTemplate } = require("./templates");
 
 const selectTemplate = (templateType, first_name, href, errors, company_name) => {
     switch (templateType) {
@@ -7,6 +7,10 @@ const selectTemplate = (templateType, first_name, href, errors, company_name) =>
             return createUserTemplate(first_name, href);
         case "user_subscription":
             return subscriptionTemplate();
+        case "user_subscription":
+            return subscriptionTemplate();
+        case "payment_failed":
+            return subscriptionFailedTemplate();
         default:
             return;
     }
@@ -18,6 +22,10 @@ const getSubject = (templateType) => {
             return "Welcome to FormMatic!";
         case "user_subscription":
             return "Your subscription is confirmed!";
+        case "trial_will_end":
+            return "Your trial is ending soon!";
+        case "payment_failed":
+            return "Payment failed for your subscription!";
         default:
             return "Notification from FormMatic";
     }
