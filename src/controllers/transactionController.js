@@ -10,73 +10,46 @@ const transactionPrices = require('../models/transactionPrices');
 
 const aliasMap = {
     'Name Change/Correction Transfer': 'Name Change',
-  };
-  
+};
+
 exports.createTransaction = async (req, res) => {
     const { userId, transactionType, formData } = req.body;
     console.log('Received transaction data:', req.body);
     if (!userId || !transactionType || !formData) {
         return res.status(400).json({ error: 'userId, transactionType, and formData are required.' });
     }
-
-    // try {
-    //     let pricing = await transactionPrices.findOne({ user_id: userId });
-    //     if (!pricing) {
-    //         pricing = await transactionPrices.create({
-    //             user_id: userId,
-    //             simpleTransfer: parseFloat(process.env.SIMPLE_TRANSFER) || 5,
-    //             multipleTransfer: parseFloat(process.env.MULTIPLE_TRANSFER) || 5,
-    //             duplicateTitle: parseFloat(process.env.DUPLICATE_TITLE) || 5,
-    //             duplicateRegistration: parseFloat(process.env.DUPLICATE_REGISTRATION) || 5,
-    //             duplicateStickers: parseFloat(process.env.DUPLICATE_STICKERS) || 5,
-    //             duplicatePlatesAndStickers: parseFloat(process.env.DUPLICATE_PLATES_AND_STICKERS) || 5,
-    //             addLienholder: parseFloat(process.env.ADD_LIENHOLDER) || 5,
-    //             removeLienholder: parseFloat(process.env.REMOVE_LIENHOLDER) || 5,
-    //             nameChange: parseFloat(process.env.NAME_CHANGE) || 5,
-    //             changeOfAddress: parseFloat(process.env.CHANGE_OF_ADDRESS) || 5,
-    //             filingPNO: parseFloat(process.env.FILING_PNO) || 5,
-    //             restorePNOVehicle: parseFloat(process.env.RESTORE_PNO_VEHICLE) || 5,
-    //             certificateOfNonOperation: parseFloat(process.env.CERTIFICATE_OF_NON_OPERATION) || 5,
-    //             personalizedPlates: parseFloat(process.env.PERSONALIZED_PLATES) || 5,
-    //             disabledPersonPlacardsPlates: parseFloat(process.env.DISABLED_PERSON_PLACARDS_PLATES) || 5,
-    //             commercialVehicle: parseFloat(process.env.COMMERCIAL_VEHICLE) || 5,
-    //             salvage: parseFloat(process.env.SALVAGE) || 5,
-    //         });
-    //     }
-
-    //     const normalizedType = aliasMap[transactionType] || transactionType;
-
-
-    //     const key = normalizedType
-    //         .replace(/[^a-zA-Z0-9 ]/g, '')
-    //         .replace(/\s+/g, ' ')
-    //         .trim()
-    //         .split(' ')
-    //         .map((word, i) => i === 0 ? word.toLowerCase() : word[0].toUpperCase() + word.slice(1))
-    //         .join('');
-
-    //     const price = pricing[key];
-    //     console.log('Transaction price:', price);
-    //     if (price === undefined) {
-    //         return res.status(400).json({ error: `Transaction type '${transactionType}' not found in user's pricing.` });
-    //     }
-
-
-
-        const transaction = await Transaction.create({ userId, transactionType, formData, transactionPrice: 5, });
-        return res.status(200).json({
-            message: 'Transaction saved successfully!',
-            transactionId: transaction._id,
-        });
-    // } catch (error) {
-    //     console.error('Error saving transaction:', error);
-    //     return res.status(500).json({ error: 'Internal server error. Could not save transaction.' });
-    // }
+    const transaction = await Transaction.create({ userId, transactionType, formData });
+    return res.status(200).json({
+        message: 'Transaction saved successfully!',
+        transactionId: transaction._id,
+    });
 };
 
 /**
  * Fetch transactions by userId or transactionId
  */
+// controller/transactionController.js
+
+exports.getUserTransactions = async (req, res) => {
+    const { userId } = req.query;
+
+    if (!userId) {
+        return res.status(400).json({ error: "userId is required to fetch transactions." });
+    }
+
+    try {
+        const transactions = await Transaction.find({ userId }).sort({ createdAt: -1 });
+
+        if (!transactions || transactions.length === 0) {
+            return res.status(404).json({ message: "No transactions found for this user." });
+        }
+
+        return res.status(200).json({ transactions });
+    } catch (error) {
+        console.error("Error fetching transactions:", error);
+        return res.status(500).json({ error: "Internal server error. Could not fetch transactions." });
+    }
+};
 
 exports.getTransactions = async (req, res) => {
     const { userId, transactionId } = req.query;

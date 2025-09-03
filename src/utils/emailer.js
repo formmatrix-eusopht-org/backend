@@ -7,8 +7,6 @@ const selectTemplate = (templateType, first_name, href, errors, company_name) =>
             return createUserTemplate(first_name, href);
         case "user_subscription":
             return subscriptionTemplate();
-        case "user_subscription":
-            return subscriptionTemplate();
         case "payment_failed":
             return subscriptionFailedTemplate();
         default:

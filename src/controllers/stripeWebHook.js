@@ -153,33 +153,40 @@ module.exports = {
                         message: "Invoice paid successfully",
                         data: invoice,
                     });
-                    await dynamicSendEmail(user.email, "user_subscription", user.name, "/");
+                    let url = process.env.CLIENT_URL + "/subscriptions";
+                    await dynamicSendEmail(user.email, "user_subscription", user.name, url);
                     console.log("✅ Invoice payment succeeded:", invoice.id, "for user:", userId);
                     break;
                 }
 
-
-
-                // ⚠️ Payment failed
                 case "invoice.payment_failed": {
                     const invoice = object;
 
-                    await updateSubscription(invoice.subscription, { status: "inactive" });
+                    // Fetch customer for fallback info
+                    const customer = await stripe.customers.retrieve(invoice.customer);
+                    const userId = invoice.metadata?.user_id || customer.metadata?.user_id;
+                    const email = invoice.metadata?.email || customer.email;
+
+                    // Don’t hard set inactive yet – let Stripe retry
+                    await updateSubscription(invoice.subscription, { status: "past_due" });
 
                     await storeLog({
-                        userId: invoice.metadata?.user_id,
+                        userId,
                         action: "PAYMENT_FAILED",
                         subscriptionId: invoice.subscription,
-                        message: "Invoice payment failed",
+                        message: "Invoice payment failed (Stripe may retry)",
                         data: invoice,
                     });
 
-                    // Optional: notify user by email
-                    await dynamicSendEmail(invoice.metadata.email, "payment_failed", "", "");
+                    // Notify user to update payment method
+                    if (email) {
+                        await dynamicSendEmail(email, "payment_failed", customer.name || "", "/subscriptions");
+                    }
 
-                    console.log("⚠️ Invoice payment failed:", invoice.id);
+                    console.log("⚠️ Invoice payment failed:", invoice.id, "for user:", userId);
                     break;
                 }
+
 
                 // 🔄 Subscription updated (upgrade/downgrade/cancel at period end)
                 case "customer.subscription.updated": {
@@ -198,40 +205,41 @@ module.exports = {
                         });
 
                         console.log("❌ Subscription set to cancel at period end:", sub.id);
-                    } else {
-                        // Handle plan change
-                        await updateSubscription(sub.id, { status: sub.status });
-                        await storeLog({
-                            userId: sub.metadata.user_id,
-                            action: "SUBSCRIPTION_UPDATED",
-                            subscriptionId: sub.id,
-                            message: "Subscription updated",
-                            data: sub,
-                        });
+                    } 
+                    // else {
+                    //     // Handle plan change
+                    //     await updateSubscription(sub.id, { status: sub.status });
+                    //     await storeLog({
+                    //         userId: sub.metadata.user_id,
+                    //         action: "SUBSCRIPTION_UPDATED",
+                    //         subscriptionId: sub.id,
+                    //         message: "Subscription updated",
+                    //         data: sub,
+                    //     });
 
-                        console.log("🔄 Subscription updated:", sub.id);
-                    }
+                    //     console.log("🔄 Subscription updated:", sub.id);
+                    // }
                     break;
                 }
 
                 // ❌ Subscription deleted
-                case "customer.subscription.deleted": {
-                    const sub = object;
+                // case "customer.subscription.deleted": {
+                //     const sub = object;
 
-                    // await updateUserByFirebaseUid(sub.metadata.user_id, { subscriptionID: null });
-                    // await updateSubscription(sub.id, { status: "canceled" });
+                //     // await updateUserByFirebaseUid(sub.metadata.user_id, { subscriptionID: null });
+                //     // await updateSubscription(sub.id, { status: "canceled" });
 
-                    // await storeLog({
-                    //     userId: sub.metadata.user_id,
-                    //     action: "SUBSCRIPTION_DELETED",
-                    //     subscriptionId: sub.id,
-                    //     message: "Subscription deleted",
-                    //     data: sub,
-                    // });
+                //     // await storeLog({
+                //     //     userId: sub.metadata.user_id,
+                //     //     action: "SUBSCRIPTION_DELETED",
+                //     //     subscriptionId: sub.id,
+                //     //     message: "Subscription deleted",
+                //     //     data: sub,
+                //     // });
 
-                    console.log("❌ Subscription deleted:", sub.id);
-                    break;
-                }
+                //     console.log("❌ Subscription deleted:", sub.id);
+                //     break;
+                // }
 
                 // ⏳ Trial ending soon
                 // case "customer.subscription.trial_will_end": {
