@@ -128,7 +128,7 @@ exports.addUser = async (req, res) => {
     });
 
     let url = process.env.CLIENT_URL + "/";
-    await dynamicSendEmail(email, "user_account_creation", name, url);
+    // await dynamicSendEmail(email, "user_account_creation", name, url);
 
     res.status(201).json({
       success: true,

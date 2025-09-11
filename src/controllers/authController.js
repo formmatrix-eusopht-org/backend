@@ -103,8 +103,8 @@ exports.addUser = async (req, res) => {
 
     await auth.setCustomUserClaims(userRecord.uid, { role: 1, planExpires: planExpiration.getTime() });
 
-    const url = process.env.CLIENT_URL + "/";
-    await dynamicSendEmail(email, "user_account_creation", name, url);
+    // const url = process.env.CLIENT_URL + "/";
+    // await dynamicSendEmail(email, "user_account_creation", name, url);
 
     res.status(201).json({
       success: true,

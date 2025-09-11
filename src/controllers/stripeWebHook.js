@@ -154,7 +154,7 @@ module.exports = {
                         data: invoice,
                     });
                     let url = process.env.CLIENT_URL + "/subscriptions";
-                    await dynamicSendEmail(user.email, "user_subscription", user.name, url);
+                    // await dynamicSendEmail(user.email, "user_subscription", user.name, url);
                     console.log("✅ Invoice payment succeeded:", invoice.id, "for user:", userId);
                     break;
                 }
@@ -179,9 +179,9 @@ module.exports = {
                     });
 
                     // Notify user to update payment method
-                    if (email) {
-                        await dynamicSendEmail(email, "payment_failed", customer.name || "", "/subscriptions");
-                    }
+                    // if (email) {
+                    //     await dynamicSendEmail(email, "payment_failed", customer.name || "", "/subscriptions");
+                    // }
 
                     console.log("⚠️ Invoice payment failed:", invoice.id, "for user:", userId);
                     break;

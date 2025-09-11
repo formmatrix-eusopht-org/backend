@@ -43,8 +43,8 @@ exports.addUser = async (req, res) => {
     });
 
     // Send welcome email
-    const url = process.env.CLIENT_URL + "/";
-    await dynamicSendEmail(email, "user_account_creation", name, url);
+    // const url = process.env.CLIENT_URL + "/";
+    // await dynamicSendEmail(email, "user_account_creation", name, url);
 
     res.status(201).json({
       success: true,
