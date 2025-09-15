@@ -66,25 +66,6 @@ module.exports = {
                     console.log("🆕 Subscription created:", sub.id);
                     break;
                 }
-                // ✅ User finished Checkout
-                // case "checkout.session.completed": {
-                //     const session = object;
-                //     const subscriptionId = session.subscription;
-                //     const customerId = session.customer;
-
-                //     // Save subscription details if you want immediate logging
-                //     await storeLog({
-                //         userId: session.metadata?.user_id,
-                //         action: "CHECKOUT_COMPLETED",
-                //         subscriptionId,
-                //         message: "Checkout session completed",
-                //         data: session,
-                //     });
-
-                //     console.log("💰 Checkout completed for customer:", customerId);
-                //     break;
-                // }
-
                 // ✅ Payment succeeded (covers initial + renewals)
                 case "invoice.payment_succeeded": {
                     const invoice = object;
@@ -153,8 +134,7 @@ module.exports = {
                         message: "Invoice paid successfully",
                         data: invoice,
                     });
-                    let url = process.env.CLIENT_URL + "/subscriptions";
-                    // await dynamicSendEmail(user.email, "user_subscription", user.name, url);
+                    // let url = process.env.CLIENT_URL + "/subscriptions";
                     console.log("✅ Invoice payment succeeded:", invoice.id, "for user:", userId);
                     break;
                 }
@@ -178,15 +158,9 @@ module.exports = {
                         data: invoice,
                     });
 
-                    // Notify user to update payment method
-                    // if (email) {
-                    //     await dynamicSendEmail(email, "payment_failed", customer.name || "", "/subscriptions");
-                    // }
-
                     console.log("⚠️ Invoice payment failed:", invoice.id, "for user:", userId);
                     break;
                 }
-
 
                 // 🔄 Subscription updated (upgrade/downgrade/cancel at period end)
                 case "customer.subscription.updated": {
@@ -205,7 +179,8 @@ module.exports = {
                         });
 
                         console.log("❌ Subscription set to cancel at period end:", sub.id);
-                    } 
+                    }
+
                     // else {
                     //     // Handle plan change
                     //     await updateSubscription(sub.id, { status: sub.status });
@@ -222,48 +197,9 @@ module.exports = {
                     break;
                 }
 
-                // ❌ Subscription deleted
-                // case "customer.subscription.deleted": {
-                //     const sub = object;
-
-                //     // await updateUserByFirebaseUid(sub.metadata.user_id, { subscriptionID: null });
-                //     // await updateSubscription(sub.id, { status: "canceled" });
-
-                //     // await storeLog({
-                //     //     userId: sub.metadata.user_id,
-                //     //     action: "SUBSCRIPTION_DELETED",
-                //     //     subscriptionId: sub.id,
-                //     //     message: "Subscription deleted",
-                //     //     data: sub,
-                //     // });
-
-                //     console.log("❌ Subscription deleted:", sub.id);
-                //     break;
-                // }
-
-                // ⏳ Trial ending soon
-                // case "customer.subscription.trial_will_end": {
-                //     const sub = object;
-
-                //     // // Optional: send email
-                //     // // await dynamicSendEmail(sub.metadata.email, "trial_will_end", sub.metadata.name, "");
-
-                //     await storeLog({
-                //         userId: sub.metadata.user_id,
-                //         action: "TRIAL_ENDING",
-                //         subscriptionId: sub.id,
-                //         message: "Trial ending soon",
-                //         data: sub,
-                //     });
-                //     await dynamicSendEmail(sub.metadata.email, "trial_will_end", sub.metadata.name, "/");
-
-                //     console.log("⏳ Trial ending soon:", sub.id);
-                //     break;
-                // }
-
                 // Everything else → just log
-                // default:
-                //     console.log(`ℹ️ Event received: ${type}`, object.id);
+                default:
+                    console.log(`ℹ️ Event received: ${type}`, object.id);
             }
         } catch (error) {
             console.error("🚨 Error handling webhook:", type, error);
