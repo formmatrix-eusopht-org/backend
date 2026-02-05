@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  activeStatus: {
+    type: Boolean,
+    default: true
+  },
   plan: {
     type: String,
     enum: ["trial", "daily", "monthly", "yearly"],

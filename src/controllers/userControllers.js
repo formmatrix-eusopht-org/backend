@@ -31,6 +31,7 @@ exports.addUser = async (req, res) => {
       email,
       createdBy,
       plan: "trial",
+      activeStatus: true,
       role: 1,
       trialPeriod: trialDays,
       planExpiration
@@ -163,6 +164,8 @@ exports.getUserByFirebaseUid = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await User.findOne({ firebase_uid: id });
+    console.log();
+
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
     res.json({ success: true, data: user });
   } catch (error) {
@@ -170,3 +173,124 @@ exports.getUserByFirebaseUid = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
+
+//-- CHANGE USER ACTIVE STATUS (FOR DEACTIVATION)
+exports.deactivateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { activeStatus: false },  // Hardcoded to false for deactivation
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Optional: Also disable Firebase authentication
+    try {
+      await auth.updateUser(user.firebase_uid, { disabled: true });
+    } catch (firebaseError) {
+      console.error("Error disabling Firebase user:", firebaseError);
+      // Continue anyway, as DB update was successful
+    }
+
+    res.json({
+      success: true,
+      message: "User deactivated successfully",
+      data: user
+    });
+  } catch (error) {
+    console.error("Error deactivating user:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ACTIVATE USER
+exports.activateUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { activeStatus: true },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Optional: Also enable Firebase authentication
+    try {
+      await auth.updateUser(user.firebase_uid, { disabled: false });
+    } catch (firebaseError) {
+      console.error("Error enabling Firebase user:", firebaseError);
+      // Continue anyway
+    }
+
+    res.json({
+      success: true,
+      message: "User activated successfully",
+      data: user
+    });
+  } catch (error) {
+    console.error("Error activating user:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
+
+
+// //-- CHANGE USER ACTIVE STATUS
+// exports.deactivateUser = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     const { activeStatus } = req.body;
+//     console.log(activeStatus);
+//     if (!activeStatus) {
+//       return res.status(400).json({ success: false, message: "activeStatus is required" });
+//     }
+
+//     const user = await User.findByIdAndUpdate(
+//       id,
+//       { activeStatus },
+//       { new: true }
+//     );
+
+//     if (!user) {
+//       return res.status(404).json({ success: false, message: "User not found" });
+//     }
+
+//     res.json({ success: true, message: "User status updated", data: user });
+//   } catch (error) {
+//     console.error("Error updating user status:", error);
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };
+
+// // ACTIVATE USER
+// exports.activateUser = async (req, res) => {
+//   try {
+//     const { id } = req.params;
+
+//     const user = await User.findByIdAndUpdate(
+//       id,
+//       { activeStatus: true },
+//       { new: true }
+//     );
+
+//     if (!user) {
+//       return res.status(404).json({ success: false, message: "User not found" });
+//     }
+
+//     res.json({ success: true, message: "User activated successfully", data: user });
+//   } catch (error) {
+//     console.error("Error activating user:", error);
+//     res.status(500).json({ success: false, message: error.message });
+//   }
+// };

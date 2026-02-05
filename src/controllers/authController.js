@@ -13,6 +13,14 @@ exports.login = async (req, res) => {
     if (!token) return res.status(400).json({ success: false, error: 'No token provided' });
 
     const decodedToken = await auth.verifyIdToken(token);
+
+    // Check user active status from DB
+    const userauth = await user.findOne({ firebase_uid: decodedToken.uid });
+
+    if (userauth && userauth.activeStatus === false) {
+      return res.status(403).json({ success: false, error: 'active status is disable please contact admin' });
+    }
+
     const sessionId = uuidv4();
     const userAgent = req.get('User-Agent') || 'unknown';
     const invalidatedSessionIds = await handleSessionLimit(decodedToken.uid, sessionId, userAgent);
@@ -20,14 +28,13 @@ exports.login = async (req, res) => {
     const expiresIn = 14 * 24 * 60 * 60 * 1000; // 14 days
     const sessionCookie = await auth.createSessionCookie(token, { expiresIn });
 
-    const userauth = await user.findOne({ firebase_uid: decodedToken.uid });
     const cookieOpts = { httpOnly: true, secure: true, sameSite: 'none', maxAge: expiresIn, path: '/' };
 
     const userDataISO = userauth
       ? {
-          ...userauth.toObject(),
-          planExpiration: userauth.planExpiration ? userauth.planExpiration.toISOString() : null
-        }
+        ...userauth.toObject(),
+        planExpiration: userauth.planExpiration ? userauth.planExpiration.toISOString() : null
+      }
       : null;
 
     res
@@ -45,7 +52,7 @@ exports.checkSession = async (req, res) => {
   try {
     const referer = req.get('referer') || '';
     let refererPath = '';
-    try { refererPath = new URL(referer).pathname; } catch {}
+    try { refererPath = new URL(referer).pathname; } catch { }
 
     const sessionCookie = req.cookies.session;
     const sessionId = req.cookies.sessionId;
@@ -53,7 +60,7 @@ exports.checkSession = async (req, res) => {
     if (!sessionCookie || !sessionId) return res.json({ user: null, path: refererPath });
 
     let decodedClaims;
-    try { decodedClaims = await auth.verifySessionCookie(sessionCookie, true); } 
+    try { decodedClaims = await auth.verifySessionCookie(sessionCookie, true); }
     catch { return res.json({ user: null, path: refererPath }); }
 
     if (!decodedClaims.uid) return res.json({ user: null, path: refererPath });
