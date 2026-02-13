@@ -65,6 +65,34 @@ module.exports = {
                     }
 
                 });
+
+                // The subscription object from create already contains current_period_end
+                let expirationTimestamp = subscription.current_period_end;
+
+                // If it's missing for some reason, try to retrieve it once more
+                if (!expirationTimestamp) {
+                    const retrievedSub = await stripe.subscriptions.retrieve(subscription.id);
+                    expirationTimestamp = retrievedSub.current_period_end;
+                }
+
+                console.log("Subscription ID:", subscription.id);
+                console.log("Raw Expiration (seconds):", expirationTimestamp);
+
+                // Stripe timestamps are in SECONDS, JS Date needs MILLISECONDS
+                const planExpirationDate = expirationTimestamp
+                    ? new Date(expirationTimestamp * 1000)
+                    : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30-day fallback
+
+                console.log("Converted Expiration:", planExpirationDate);
+
+                await updateUserByFirebaseUid(userId, {
+                    customerId: customer.id,
+                    subscriptionID: subscription.id,
+                    priceId: price_id,
+                    plan: priceId === "Monthly Plan" ? "monthly" : priceId === "Yearly Plan" ? "yearly" : "daily",
+                    planExpiration: planExpirationDate,
+                    subscriptionStatus: subscription.status,
+                });
             } catch (err) {
                 console.error("Stripe error in subdcribtion:", err);
                 res.status(500).json({ error: err.message });
@@ -134,49 +162,80 @@ module.exports = {
     },
     getUserSubscriptionsBySubscriptionsId: async (req, res) => {
         try {
-            const { subscriptionID } = req.body;
+            const { subscriptionID } = req.params;
 
             if (!subscriptionID) {
                 return res.status(400).json({ error: "subscriptionID is required" });
             }
 
-            // Fetch subscription + payments
-            const subscriptions = await getSubscriptionBySubscribtionId(subscriptionID);
-            const payments = await getPaymentsBySubscription(subscriptionID);
+            // 1. Retrieve the specific subscription from Stripe to get the customer ID
+            const mainSubscription = await stripe.subscriptions.retrieve(subscriptionID);
+            const customerId = mainSubscription.customer;
 
-            let formattedSubscription = {};
-            if (subscriptions && subscriptions.length > 0) {
-                const sub = subscriptions[0].toObject ? subscriptions[0].toObject() : subscriptions[0];
-
-                const stripeSub = await stripe.subscriptions.retrieve(subscriptionID, {
-                    expand: ["latest_invoice"],
-                });
-
-                // Stripe hosted invoice URL
-                const invoice = stripeSub.latest_invoice;
-                const invoiceUrl = invoice?.hosted_invoice_url || null;
-
-                // Price mapping
-                const priceMap = {
-                    [process.env.DAILY_PRICE_ID]: "5",
-                    [process.env.MONTHLY_PRICE_ID]: "50",
-                    [process.env.YEARLY_PRICE_ID]: "500",
-                };
-
-                formattedSubscription = {
-                    ...sub,
-                    invoiceUrl,
-                    Price: priceMap[sub.priceId] || "Unknown", // fallback
-                };
+            if (!customerId) {
+                return res.status(404).json({ error: "Customer not found for this subscription" });
             }
 
+            // 2. Fetch all subscriptions (active, canceled, etc.) for this customer from Stripe
+            const stripeSubscriptions = await stripe.subscriptions.list({
+                customer: customerId,
+                status: 'all',
+                expand: ['data.latest_invoice'],
+            });
+
+            // 3. Fetch all invoices (payment history) for this customer from Stripe
+            const stripeInvoices = await stripe.invoices.list({
+                customer: customerId,
+                limit: 50,
+            });
+
+
+
+            const priceMap = {
+                [process.env.DAILY_PRICE_ID]: "5",
+                [process.env.MONTHLY_PRICE_ID]: "50",
+                [process.env.YEARLY_PRICE_ID]: "500",
+            };
+
+            // 4. Format subscriptions for the UI
+            const formattedSubscriptions = stripeSubscriptions.data.map(sub => {
+                const subItems = sub.items.data;
+                const price_id = subItems.length > 0 ? subItems[0].price.id : null;
+
+                return {
+                    subscriptionId: sub.id,
+                    status: sub.status,
+                    currentPeriodStart: sub.current_period_start ? new Date(sub.current_period_start * 1000) : null,
+                    currentPeriodEnd: sub.current_period_end ? new Date(sub.current_period_end * 1000) : null,
+                    priceId: price_id,
+                    Price: price_id ? (priceMap[price_id] || "Unknown") : "N/A",
+                    planType: price_id === process.env.MONTHLY_PRICE_ID ? "Monthly Plan" :
+                        price_id === process.env.YEARLY_PRICE_ID ? "Yearly Plan" :
+                            price_id === process.env.DAILY_PRICE_ID ? "Daily Plan" : "Other",
+                    cancelAtPeriodEnd: sub.cancel_at_period_end,
+                };
+            });
+
+            // 5. Format invoices as payments for the UI
+            const formattedPayments = stripeInvoices.data.map(invoice => ({
+                invoiceId: invoice.id,
+                amountPaid: invoice.amount_paid / 100, // Stripe uses cents
+                currency: invoice.currency.toUpperCase(),
+                status: invoice.status,
+                hosted_invoice_url: invoice.hosted_invoice_url,
+                invoice_pdf: invoice.invoice_pdf,
+                date: invoice.created ? new Date(invoice.created * 1000) : null,
+                periodStart: invoice.period_start ? new Date(invoice.period_start * 1000) : null,
+                periodEnd: invoice.period_end ? new Date(invoice.period_end * 1000) : null,
+            }));
+
             return res.json({
-                subscriptions: formattedSubscription,
-                payments: payments || [],
+                subscriptions: formattedSubscriptions, // Array of subscriptions
+                payments: formattedPayments,           // Array of invoices/payments
             });
 
         } catch (err) {
-            console.error("Error fetching subscriptions:", err);
+            console.error("Error fetching data from Stripe:", err);
             return res.status(500).json({ error: err.message });
         }
     },

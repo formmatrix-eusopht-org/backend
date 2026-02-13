@@ -27,6 +27,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null
   },
+  customerId: {
+    type: String,
+    default: null
+  },
+  priceId: {
+    type: String,
+    default: null
+  },
+  subscriptionStatus: {
+    type: String,
+    default: false
+  },
   activeStatus: {
     type: Boolean,
     default: true
@@ -38,18 +50,11 @@ const userSchema = new mongoose.Schema({
   },
   planExpiration: {
     type: Date,
-    default: function () {
-      const today = new Date();
-      return new Date(today.setDate(today.getDate() + this.trialPeriod));
-    }
-  },
-  trialPeriod: {
-    type: Number,
-    default: 14
+    default: null
   },
   status: {
-    type: Number,
-    default: 1
+    type: Boolean,
+    default: true
   },
   createdAt: {
     type: Date,

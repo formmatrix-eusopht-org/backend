@@ -64,7 +64,7 @@ exports.checkSession = async (req, res) => {
     let refererPath = "";
     try {
       refererPath = new URL(referer).pathname;
-    } catch {}
+    } catch { }
 
     const token = req.cookies.session;
     const sessionId = req.cookies.sessionId;
@@ -184,6 +184,8 @@ exports.getUsers = async (req, res) => {
     }
 
     const users = await User.find({ createdBy: uid });
+    console.log(users);
+
     res.json(users);
   } catch (error) {
     console.error("user error:", error);
