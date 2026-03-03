@@ -119,6 +119,15 @@ exports.addUser = async (req, res) => {
       data: { ...newUser.toObject(), planExpiration: planExpiration.toISOString() }
     });
   } catch (error) {
+
+    // Handle Firebase duplicate email error properly
+    if (error.code === "auth/email-already-exists") {
+      return res.status(400).json({
+        success: false,
+        message: "This email is already registered. Please use another email.",
+      });
+    }
+
     console.error('Error adding user:', error);
     res.status(500).json({ success: false, message: 'Error creating user', error: error.message });
   }
