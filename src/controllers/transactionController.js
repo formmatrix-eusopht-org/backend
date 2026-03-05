@@ -114,18 +114,18 @@ exports.updateTransaction = async (req, res) => {
 };
 
 exports.deleteTransaction = async (req, res) => {
-    const { transactionId } = req.query;
+    const { id } = req.params;
 
-    if (!transactionId) {
+    if (!id) {
         return res.status(400).json({ error: 'transactionId parameter is required.' });
     }
 
     try {
-        const deleted = await Transaction.findByIdAndDelete(transactionId);
+        const deleted = await Transaction.findByIdAndDelete(id);
         if (!deleted) {
             return res.status(404).json({ error: 'Transaction not found.' });
         }
-        return res.status(200).json({ message: 'Transaction deleted successfully.', transactionId });
+        return res.status(200).json({ message: 'Transaction deleted successfully.', transactionId: id });
     } catch (error) {
         console.error('Error deleting transaction:', error);
         return res.status(500).json({ error: 'Internal server error. Could not delete transaction.' });
