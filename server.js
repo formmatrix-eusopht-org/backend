@@ -13,11 +13,11 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3500;
 
 app.use(
   cors({
-    origin: [process.env.CLIENT_URL, 'http://localhost:3001', 'http://localhost:3000'],
+    origin: [process.env.CLIENT_URL, 'http://localhost:3500', 'http://localhost:3500'],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],

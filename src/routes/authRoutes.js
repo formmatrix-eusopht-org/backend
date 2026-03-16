@@ -9,4 +9,4 @@ router.post('/adduser', authCotnroller.addUser);
 router.post('/getusers', authCotnroller.getUsers);
 
 module.exports = router;
-    
+
